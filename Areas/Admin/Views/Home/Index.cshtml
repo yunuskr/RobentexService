@@ -1,0 +1,310 @@
+@model RobentexService.Models.ViewModels.HomeIndexViewModel
+@using RobentexService.Models
+
+@functions{
+    // Kart başlığı: boşsa "Firma + Servis Talebi"
+    private static string CardTitle(ServiceRequest s) =>
+        string.IsNullOrWhiteSpace(s.Title)
+            ? $"{(s.CompanyName ?? "").Trim()} Servis Talebi".Trim()
+            : s.Title!;
+
+    // Durum -> metin
+    private static string StatusLabel(ServiceStatus s) => s switch{
+        ServiceStatus.YeniTalep        => "Yeni Talep",
+        ServiceStatus.TeklifIletildi   => "Teklif İletildi",
+        ServiceStatus.ServisAsamasi    => "Servis Aşaması",
+        ServiceStatus.TeklifReddedildi => "Teklif Reddedildi",
+        ServiceStatus.Tamamlandi       => "Tamamlandı",
+        ServiceStatus.FaturaEdildi     => "Fatura Edildi",
+        _ => s.ToString()
+    };
+
+    // Durum -> renk sınıfı
+    private static string StatusPillClass(ServiceStatus s) => s switch{
+        ServiceStatus.YeniTalep        => "pill pill-green",
+        ServiceStatus.TeklifIletildi   => "pill pill-amber",
+        ServiceStatus.ServisAsamasi    => "pill pill-cyan",
+        ServiceStatus.TeklifReddedildi => "pill pill-red",
+        ServiceStatus.Tamamlandi       => "pill pill-gray",
+        ServiceStatus.FaturaEdildi     => "pill pill-purple",
+        _ => "pill"
+    };
+
+    // (opsiyonel) Son not kısa özet
+    private static string LastNote(ServiceRequest s, int max = 80){
+        var t = s.Notes?.OrderByDescending(n=>n.CreatedAt).FirstOrDefault()?.Text ?? "";
+        if (string.IsNullOrWhiteSpace(t)) return "";
+        t = t.Trim();
+        return t.Length > max ? t.Substring(0, max-1) + "…" : t;
+    }
+}
+
+@{
+    ViewData["Title"] = "Robentex Servis Takip Paneli";
+    Layout = "/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+
+    var editDataUrl = Url.Action("EditData", "Home", new { area = "Admin" });            // GET JSON
+    var saveUrl     = Url.Action("Save",     "ServiceRequests", new { area = "Admin" }); // POST kaydet
+    var now         = DateTime.Now.ToString("HH:mm | dd.MM.yyyy");
+
+    // Tüm kayıtları tek listede topla (görsellerdeki gibi tablo görünümü)
+    var all = Enumerable.Empty<ServiceRequest>();
+    if(Model != null){
+        all =
+            (Model.YeniTalep          ?? Enumerable.Empty<ServiceRequest>())
+            .Concat(Model.TeklifIletildi ?? Enumerable.Empty<ServiceRequest>())
+            .Concat(Model.ServisAsamasi  ?? Enumerable.Empty<ServiceRequest>())
+            .Concat(Model.TeklifReddedildi ?? Enumerable.Empty<ServiceRequest>())
+            .Concat(Model.Tamamlandi    ?? Enumerable.Empty<ServiceRequest>())
+            .Concat(Model.FaturaEdildi  ?? Enumerable.Empty<ServiceRequest>())
+            .OrderByDescending(x => x.CreatedAt);
+    }
+}
+
+<div class="kb-wrap">
+  <!-- Üst bar -->
+  <header class="kb-header">
+    <div class="live">
+      <span class="dot"></span>
+      <span class="txt">Canlı</span>
+      <span class="sub">son güncelleme: <strong>@now</strong></span>
+    </div>
+
+    <h1>Robentex Servis Takip Paneli</h1>
+
+    <div class="search">
+      <span class="mag">🔍</span>
+      <input type="text" placeholder="Ara: #numara, başlık, müşteri..." />
+    </div>
+  </header>
+
+  <!-- Liste Paneli -->
+  <section class="list-panel">
+    <div class="list-head">
+      <div>Başlık</div>
+      <div>Sipariş No</div>
+      <div class="sort" role="button" tabindex="0" aria-label="Duruma göre sırala">Durum <span class="caret">▾</span></div>
+      <div>Not</div>
+      <div class="right">
+        <button class="icon-btn" type="button" title="Yeni talep" aria-label="Yeni talep">+</button>
+      </div>
+    </div>
+
+    <div class="list-body">
+      @if (all.Any())
+      {
+        foreach (var item in all)
+        {
+          <div class="list-row">
+            <!-- Başlık -->
+            <div class="cell title">
+              <div class="meta">Oluşturma Tarihi: @item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy / HH:mm")</div>
+              <div class="ttl">@CardTitle(item)</div>
+            </div>
+
+            <!-- Sipariş No -->
+            <div class="cell ord">#@item.Id</div>
+
+            <!-- Durum -->
+            <div class="cell status">
+              <span class="@StatusPillClass(item.Status)">
+                <span class="dot-mini"></span>@StatusLabel(item.Status)
+              </span>
+            </div>
+
+            <!-- Not -->
+            <div class="cell note">@(LastNote(item) is string n && n.Length>0 ? n : "—")</div>
+            
+            <!-- Aksiyonlar -->
+            <div class="cell actions">
+              <button class="btn btn-dark open-edit" type="button" data-id="@item.Id" aria-label="Talep #@item.Id düzenle">Düzenle</button>
+              <a class="btn btn-ok"
+                 href="@Url.Action("Details","ServiceRequests", new { area="Admin", id=item.Id })">Detay Gör</a>
+            </div>
+          </div>
+        }
+      }
+      else
+      {
+        <div class="list-empty">Kayıt bulunamadı.</div>
+      }
+    </div>
+  </section>
+
+  <!-- Alt logo -->
+  <footer class="kb-footer">
+    <img src="~/Images/Robentex.png" alt="Robentex" asp-append-version="true" />
+  </footer>
+</div>
+
+@* === Modal TEMPLATE artık partial’dan geliyor === *@
+@await Html.PartialAsync(
+  "~/Views/Shared/Modals/_EditServiceRequestModal.cshtml",
+  new RobentexService.Models.ViewModels.Modals.EditServiceRequestModalVm{
+      SaveUrl = saveUrl!
+  }
+)
+
+@section Styles{
+  <!-- Modal ortak stilleri -->
+  <link rel="stylesheet" href="~/css/rtx-modal.css" asp-append-version="true" />
+  <style>
+  :root{
+    --bg:#1f1f1f; --panel:#2a2a2a; --panel-2:#3a3a3a; --text:#eaeaea; --muted:#a9b0b7;
+    --green:#47c266; --amber:#f2c039; --cyan:#3ac2e3; --gray:#767a81; --purple:#a576d8; --red:#d94a4a;
+    --ok:#3cd25b; --dark:#111; --radius:14px;
+  }
+
+  /* Genel */
+  html, body{ height:100%; }
+  body{ background:#1b1b1b; color:var(--text); }
+
+  /* → Sayfayı daha geniş kullan + yan/alt boşlukları azalt */
+  .kb-wrap{
+    width:100%;
+    max-width: 1500px;
+    margin:0 auto;
+    padding:8px 10px 10px;
+  }
+
+  /* Üst bar */
+  .kb-header{
+    display:grid; grid-template-columns:1fr auto 1fr; grid-template-rows:auto auto;
+    align-items:center; gap:8px 12px; margin-bottom:12px;
+  }
+  .kb-header h1{ grid-column:2; grid-row:1; margin:0; font-weight:700; letter-spacing:.2px; }
+  .kb-header .live{ grid-column:1; grid-row:1; display:flex; align-items:center; gap:8px; }
+  .kb-header .dot{ width:10px; height:10px; border-radius:50%; background:#ff3b30; box-shadow:0 0 0 3px rgba(255,59,48,.15); }
+  .kb-header .txt{ font-weight:600; color:#ff6961; }
+  .kb-header .sub{ color:var(--muted); font-size:.9rem; }
+
+  /* Arama */
+  .kb-header .search{
+    grid-column:1/4; grid-row:2; position:relative;
+    width:min(1200px, 100%);
+    justify-self:center;
+  }
+  .kb-header .search input{
+    width:100%; height:48px; background:#555; border:1px solid #666; color:var(--text);
+    padding:.8rem 1.1rem .8rem 2.4rem; border-radius:26px; outline:0;
+  }
+  .kb-header .search .mag{ position:absolute; left:12px; top:50%; transform:translateY(-50%); opacity:.85; }
+
+  /* ===== Liste Panel ===== */
+  .list-panel{
+    background:#2f2f2f; border:1px solid #3f3f3f; border-radius:14px;
+    box-shadow:0 4px 14px rgba(0,0,0,.22) inset;
+    overflow:hidden;
+    width:100%;
+    max-width: 1500px;
+    margin: 0 auto 10px;
+  }
+
+  /* → kolon genişlikleri */
+  .list-head{
+    display:grid;
+    grid-template-columns: 2fr 150px 220px 1.2fr 200px;
+    gap:10px; align-items:center;
+    background:#5a5a5a; color:#fff; padding:8px 12px;
+  }
+  .list-head .sort{ display:flex; align-items:center; gap:6px; cursor:pointer; }
+  .list-head .caret{ opacity:.8; }
+
+  .list-body{
+    max-height: calc(100vh - 260px);
+    overflow:auto;
+    padding:8px;
+  }
+
+  .list-row{
+    display:grid;
+    grid-template-columns: 2fr 150px 220px 1.2fr 200px;
+    gap:10px; align-items:center;
+    background:#1f1f1f; border:1px solid #3a3a3a; border-radius:10px;
+    padding:10px 12px; margin-bottom:8px;
+  }
+  .list-body .list-row:last-child{ margin-bottom:4px; }
+
+  .list-row .meta{ color:#b6bcc3; font-size:.82rem; margin-bottom:3px; }
+  .list-row .ttl{ font-weight:700; }
+  .cell.ord{ color:#cfcfcf; }
+  .cell.note{ color:#d9d9d9; opacity:.9; }
+  .cell.actions{ display:flex; gap:8px; justify-content:flex-end; }
+
+  /* pill */
+  .pill{ display:inline-flex; align-items:center; gap:8px; font-weight:700; color:#111;
+    padding:.35rem .7rem; border-radius:999px; }
+  .pill-green{ background:var(--green); }
+  .pill-amber{ background:var(--amber); }
+  .pill-cyan{ background:var(--cyan); }
+  .pill-red{ background:var(--red); color:#fff; }
+  .pill-gray{ background:var(--gray); color:#fff; }
+  .pill-purple{ background:var(--purple); }
+  .dot-mini{ width:8px; height:8px; border-radius:50%; background:#0e0e0e; opacity:.35; }
+
+  .list-empty{ padding:14px; color:#a9b0b7; }
+
+  /* Buttons */
+  .btn{ border:none; border-radius:999px; padding:.45rem .9rem; font-weight:800; cursor:pointer; }
+  .btn-dark{ background:#111; color:#fff; }
+  .btn-ok{ background:var(--ok); color:#0e0e0e; }
+  .icon-btn{ width:28px; height:28px; border-radius:8px; border:1px solid #3b3b3b; background:#2d2d2d; color:#ddd; cursor:pointer; }
+
+  /* Alt logo */
+  .kb-footer{ display:flex; justify-content:center; align-items:center; padding:8px 0 2px; opacity:.9; }
+  .kb-footer img{ height:24px; }
+
+  /* Scrollbar */
+  .list-body::-webkit-scrollbar{ width:10px; }
+  .list-body::-webkit-scrollbar-thumb{ background:#555; border-radius:10px; border:2px solid #2f2f2f; }
+
+  /* responsive  */
+  @@media (max-width:1200px){
+    .list-head, .list-row{ grid-template-columns: 1.5fr 120px 190px 1fr 180px; }
+  }
+  @@media (max-width:900px){
+    .list-head, .list-row{ grid-template-columns: 1.3fr 110px 170px 1fr 160px; }
+  }
+  </style>
+}
+
+@section Scripts{
+  <script>
+    // Modal edit datası için endpoint (JS dosyası buradan alacak)
+    window.__RTX_EDIT_DATA_URL__ = '@editDataUrl';
+  </script>
+  <script src="~/js/edit-modal.js" asp-append-version="true"></script>
+
+  <script>
+  // (opsiyonel) basit sıralama togglesı
+  let sortState = { key:'createdAt', dir:'desc' };
+  const rows = () => Array.from(document.querySelectorAll('.list-body .list-row'));
+  const parseDate = s => {
+    const m = (s || '').match(/(\d{2}\.\d{2}\.\d{4}).*?(\d{2}:\d{2})/);
+    if (!m) return 0;
+    const [d, mo, y] = m[1].split('.');
+    return new Date(`${y}-${mo}-${d}T${m[2]}:00`).getTime();
+  };
+  const sortRows = () => {
+    const listBody = document.querySelector('.list-body');
+    const arr = rows().map(r=>{
+      const meta = r.querySelector('.meta')?.textContent || '';
+      const createdAt = parseDate(meta);
+      const status = r.querySelector('.cell.status')?.innerText.trim() || '';
+      return { r, createdAt, status };
+    });
+    arr.sort((a,b)=>{
+      const dir = sortState.dir === 'asc' ? 1 : -1;
+      const ka = a[sortState.key], kb = b[sortState.key];
+      return (ka>kb ? 1 : ka<kb ? -1 : 0) * dir;
+    });
+    arr.forEach(x=>listBody.appendChild(x.r));
+  };
+  document.querySelector('.list-head .sort')?.addEventListener('click', ()=>{
+    if (sortState.key === 'createdAt') sortState = { key:'status', dir:'asc' };
+    else if (sortState.key === 'status') sortState = { key:'status', dir: (sortState.dir==='asc'?'desc':'asc') };
+    else sortState = { key:'createdAt', dir:'desc' };
+    sortRows();
+  });
+  </script>
+}

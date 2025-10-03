@@ -1,0 +1,119 @@
+@model RobentexService.Models.ViewModels.Modals.EditServiceRequestModalVm
+@* Bu partial SADECE <template> üretir. *@
+
+<template id="edit-modal-tpl">
+  <div class="rtx-modal-backdrop" data-modal>
+    <div class="rtx-modal">
+      <form id="editForm" method="post" action="@Model.SaveUrl">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="Id"/>
+
+        <div class="rtx-modal-head">
+          <h3>Talep Düzenleme</h3>
+          <button type="button" class="x" data-close aria-label="Kapat">&times;</button>
+        </div>
+
+        <div class="rtx-modal-body">
+          <!-- SOL -->
+          <div class="col">
+            <div class="grp">
+              <label>Firma</label>
+              <input class="inp ro" data-disp="CompanyName" readonly />
+            </div>
+
+            <div class="grp two">
+              <div>
+                <label>Ad</label>
+                <input class="inp ro" data-disp="FirstName" readonly />
+              </div>
+              <div>
+                <label>Soyad</label>
+                <input class="inp ro" data-disp="LastName" readonly />
+              </div>
+            </div>
+
+            <div class="grp two">
+              <div>
+                <label>Tel</label>
+                <input class="inp ro" data-disp="Phone" readonly />
+              </div>
+              <div>
+                <label>E-posta</label>
+                <input class="inp ro" data-disp="Email" readonly />
+              </div>
+            </div>
+
+            <div class="grp two">
+              <div>
+                <label>Robot Model</label>
+                <input class="inp ro" data-disp="RobotModel" readonly />
+              </div>
+              <div>
+                <label>Robot Seri No</label>
+                <input class="inp ro" data-disp="RobotSerial" readonly />
+              </div>
+            </div>
+
+            <div class="grp">
+              <label>Arıza Tanımı</label>
+              <textarea class="inp ro compact" rows="3" data-disp="FaultDescription" readonly></textarea>
+            </div>
+
+            <div class="grp">
+              <label>Kayıt Zamanı</label>
+              <input class="inp ro" data-disp="CreatedAt" readonly />
+            </div>
+          </div>
+
+          <!-- SAĞ -->
+          <div class="col">
+            <div class="grp">
+              <label>Başlık</label>
+              <input class="inp" name="Title" placeholder="Başlık" />
+            </div>
+
+            <div class="grp two">
+              <div>
+                <label>Müşteri Sipariş No</label>
+                <input class="inp" name="CustomerOrderNo" />
+              </div>
+              <div>
+                <label>Robentex Sipariş No</label>
+                <input class="inp" name="RobentexOrderNo" />
+              </div>
+            </div>
+
+            <div class="grp">
+              <label>Takip No</label>
+              <input class="inp" name="TrackingNo" />
+            </div>
+
+            <div class="grp">
+              <label>Durum/Bayrak</label>
+              <select class="inp" name="Status">
+                <option value="0">Yeni Talep</option>
+                <option value="1">Teklif İletildi</option>
+                <option value="2">Servis Aşaması</option>
+                <option value="3">Teklif Reddedildi</option>
+                <option value="4">Tamamlandı</option>
+                <option value="5">Fatura Edildi</option>
+              </select>
+            </div>
+
+            <div class="grp">
+              <label>Yeni Not (opsiyonel)</label>
+              <textarea class="inp compact" name="NewNote" rows="3" placeholder="+ Not ekle"></textarea>
+            </div>
+
+            <div class="notes" data-notes></div>
+          </div>
+        </div>
+
+        <div class="rtx-modal-foot">
+          <button type="button" class="btn" data-close>İptal</button>
+          <button type="submit" class="btn ok">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>

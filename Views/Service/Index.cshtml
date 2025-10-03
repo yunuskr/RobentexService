@@ -1,0 +1,141 @@
+@model RobentexService.Models.ServiceRequest
+@{
+    ViewData["Title"] = "Robentex Servis Talep";
+    Layout = "_Layout";
+}
+
+<div class="wrapper-dark">
+  <div class="container px-3 px-sm-4">
+    <div class="form-card mx-auto">
+        <div class="text-center mb-3">
+            <img src="~/Images/Robentex.png"
+                alt="Robentex"
+                class="brand-logo"
+                asp-append-version="true" />
+            <div class="text-muted small mt-1">Servis Talep Formu</div>
+        </div>
+
+      @Html.ValidationSummary(excludePropertyErrors: true, message: "", htmlAttributes: new { @class = "alert alert-warning py-2" })
+
+      <form asp-action="Index" method="post" class="row g-3">
+        @Html.AntiForgeryToken()
+
+        <!-- Ad / Soyad -->
+        <div class="col-12 col-md-6">
+          <label asp-for="FirstName" class="form-label"></label>
+          <input asp-for="FirstName" class="form-control control-dark" autocomplete="given-name" inputmode="text" />
+          <span asp-validation-for="FirstName" class="invalid-hint"></span>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label asp-for="LastName" class="form-label"></label>
+          <input asp-for="LastName" class="form-control control-dark" autocomplete="family-name" inputmode="text" />
+          <span asp-validation-for="LastName" class="invalid-hint"></span>
+        </div>
+
+        <!-- Seri No / Model -->
+        <div class="col-12 col-md-6">
+          <label asp-for="RobotSerial" class="form-label"></label>
+          <input asp-for="RobotSerial" class="form-control control-dark" autocomplete="off" inputmode="text" />
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label asp-for="RobotModel" class="form-label"></label>
+          <input asp-for="RobotModel" class="form-control control-dark" autocomplete="off" inputmode="text" />
+        </div>
+
+        <!-- Firma -->
+        <div class="col-12">
+          <label asp-for="CompanyName" class="form-label"></label>
+          <input asp-for="CompanyName" class="form-control control-dark" autocomplete="organization" />
+        </div>
+
+        <!-- Arıza Tanımı -->
+        <div class="col-12">
+          <label asp-for="FaultDescription" class="form-label"></label>
+          <textarea asp-for="FaultDescription" rows="6" class="form-control control-dark" placeholder="Lütfen sorunu mümkün olduğunca detaylı açıklayın"></textarea>
+        </div>
+
+        <!-- E-posta / Tel -->
+        <div class="col-12 col-md-6">
+          <label asp-for="Email" class="form-label"></label>
+          <input asp-for="Email" class="form-control control-dark" autocomplete="email" inputmode="email" />
+          <span asp-validation-for="Email" class="invalid-hint"></span>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label asp-for="Phone" class="form-label"></label>
+          <input asp-for="Phone" class="form-control control-dark" autocomplete="tel" inputmode="tel" />
+        </div>
+
+        <!-- Gönder -->
+        <div class="col-12 mt-4">
+            <button class="btn btn-warning w-100 btn-lg fw-semibold">Gönder</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Styles{
+<style>
+
+  /* mobile-first koyu tema + yumuşak kart */
+  :root{
+    --bg:#121212; --card:#232323; --text:#eaeaea; --muted:#9aa0a6; --accent:#f0a400;
+    --radius:18px;
+  }
+  .wrapper-dark{
+    min-height:100dvh; background:var(--bg);
+    padding-block: clamp(16px, 4vh, 40px);
+  }
+  .control-dark::placeholder{
+  color:#bfc3c7;   /* açık gri */
+  opacity:1;       /* bazı tarayıcılar düşük opacity veriyor */
+}
+  .brand-logo{
+    height:42px;               /* mobilde rahat */
+    max-width: 100%;
+    object-fit: contain;
+    }
+    @@media (min-width: 768px){
+    .brand-logo{ height:48px; } /* tablet/desktop */
+    }
+  .form-card{
+    background:var(--card);
+    color:var(--text);
+    width:min(840px, 100%);
+    padding:clamp(16px, 3.5vw, 32px);
+    border-radius: var(--radius);
+    box-shadow: 0 12px 40px rgba(0,0,0,.35);
+  }
+  .form-label{ color:var(--muted); font-weight:500; }
+  .control-dark{
+    background:#303030; border:1px solid #3a3a3a; color:var(--text);
+    border-radius: 14px; padding:.9rem 1rem;
+  }
+  .control-dark:focus{
+    border-color: var(--accent); outline:0; box-shadow:0 0 0 .15rem rgba(240,164,0,.25);
+  }
+  .invalid-hint{ color:#ffc107; font-size:.85rem; }
+
+  /* Daha konforlu dokunma hedefleri */
+  input, textarea, button{ font-size:1rem; }
+  @@media (min-width: 768px){
+    input, textarea, button{ font-size:1.05rem; }
+  }
+
+  /* iOS güvenli alan */
+  .wrapper-dark{ padding-left: max(16px, env(safe-area-inset-left)); padding-right:max(16px, env(safe-area-inset-right)); }
+
+  /* Sistem koyu ayarına saygı (isteğe bağlı) */
+  @@media (prefers-color-scheme: light){
+    :root{ --bg:#f7f7f7; --card:#ffffff; --text:#1f1f1f; --muted:#6b7280; }
+    .wrapper-dark{ background:var(--bg); }
+    .control-dark{ background:#fff; border-color:#e5e7eb; color:#1f2937; }
+  }
+</style>
+}
+@section Scripts{
+  <partial name="_ValidationScriptsPartial" />
+}

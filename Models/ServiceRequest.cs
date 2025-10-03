@@ -1,0 +1,71 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace RobentexService.Models;
+
+public class ServiceRequest
+{
+
+    
+    // ----- Kullanıcı Tarafından Girilecek Olan Veriler -----
+    public int Id { get; set; }
+
+    [Required, Display(Name = "Ad")]
+    [StringLength(80)]
+    public string FirstName { get; set; } = string.Empty;
+
+    [Required, Display(Name = "Soyad")]
+    [StringLength(80)]
+    public string LastName { get; set; } = string.Empty;
+
+    [Display(Name = "Robot Seri No")]
+    [StringLength(80)]
+    public string? RobotSerial { get; set; }
+
+    [Display(Name = "Robot Model")]
+    [StringLength(80)]
+    public string? RobotModel { get; set; }
+
+    [Display(Name = "Firma Adı")]
+    [StringLength(120)]
+    public string? CompanyName { get; set; }
+
+    [Display(Name = "Arıza Tanımı")]
+    [StringLength(2000)]
+    public string? FaultDescription { get; set; }
+
+    [EmailAddress, Display(Name = "E-posta")]
+    [StringLength(200)]
+    public string? Email { get; set; }
+
+    [Phone, Display(Name = "Tel")]
+    [StringLength(40)]
+    public string? Phone { get; set; }
+
+    [Display(Name = "Kayıt Zamanı")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+
+
+    // ----- Admin Tarafından Girilecek Olan Veriler -----
+    
+    [Display(Name="Başlık"), StringLength(200)]
+    public string? Title { get; set; }
+
+    [Display(Name="Takip No"), StringLength(80)]
+    public string? TrackingNo { get; set; }
+
+    [Display(Name="Müşteri Sipariş No"), StringLength(80)]
+    public string? CustomerOrderNo { get; set; }
+
+    [Display(Name="Robentex Sipariş No"), StringLength(80)]
+    public string? RobentexOrderNo { get; set; }
+
+    [Display(Name="Durum/Bayrak")]
+    public ServiceStatus Status { get; set; } = ServiceStatus.YeniTalep;
+
+    [Display(Name="Güncelleme")]
+    public DateTime? UpdatedAt { get; set; }
+
+    // Notlar (çoklu)
+    public ICollection<ServiceRequestNote> Notes { get; set; } = new List<ServiceRequestNote>();
+}

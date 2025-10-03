@@ -1,0 +1,108 @@
+@model RobentexService.Models.ViewModels.LoginViewModel
+@{
+  ViewData["Title"] = "Kullanıcı Giriş";
+  Layout = "/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+
+  // NAVBAR GİZLE
+  ViewData["HideTopbar"] = true;
+
+  var returnUrl = Context.Request.Query["returnUrl"].ToString();
+}
+
+<div class="wrapper-dark d-flex align-items-center">
+  <div class="container">
+    <div class="form-card mx-auto">
+      <div class="text-center mb-3">
+        <img src="~/Images/Robentex.png" alt="Robentex" class="brand-logo" asp-append-version="true" />
+        <div class="text-muted small mt-1">Yönetim Paneli</div>
+      </div>
+
+      <!-- Doğrulama özeti (tag-helper seçeneği) -->
+      <div asp-validation-summary="ModelOnly" class="alert alert-warning py-2"></div>
+
+      <form asp-area="Admin" asp-controller="Account" asp-action="Login" method="post" class="row g-3">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+        <div class="col-12">
+          <label asp-for="Username" class="form-label"></label>
+          <input asp-for="Username" class="form-control control-dark" autocomplete="username" />
+          <span asp-validation-for="Username" class="invalid-hint"></span>
+        </div>
+
+        <div class="col-12">
+          <label asp-for="Password" class="form-label"></label>
+          <input asp-for="Password" type="password" class="form-control control-dark" autocomplete="current-password" />
+          <span asp-validation-for="Password" class="invalid-hint"></span>
+        </div>
+
+        <div class="col-12 d-flex justify-content-between align-items-center">
+          <label class="chk-wrap">
+            <input asp-for="RememberMe" />
+            <span class="box"></span>
+            <span class="lbl">@Html.DisplayNameFor(m => m.RememberMe)</span>
+          </label>
+          <a href="#" class="link-muted small disabled" tabindex="-1" aria-disabled="true">Şifremi unuttum</a>
+        </div>
+
+        <div class="col-12 mt-3">
+          <button type="submit" class="btn btn-warning w-100 btn-lg fw-semibold">Giriş Yap</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Styles{
+<style>
+  :root{
+    --bg:#121212; --card:#232323; --text:#eaeaea; --muted:#9aa0a6; --accent:#f0a400;
+    --radius:20px;
+  }
+  .wrapper-dark{ min-height:100dvh; background:var(--bg); padding: clamp(16px,4vh,40px); }
+  .form-card{
+    background:var(--card); color:var(--text);
+    width:min(520px, 100%); padding:clamp(18px,3.5vw,36px);
+    border-radius:var(--radius); box-shadow:0 18px 50px rgba(0,0,0,.45);
+  }
+  .brand-logo{ display:block; height:48px; max-width:100%; margin-inline:auto; object-fit:contain; }
+  @@media (max-width: 767.98px){ .brand-logo{ height:42px; } }
+
+  .form-label{ color:var(--muted); font-weight:500; }
+  .control-dark{
+    background:#303030; border:1px solid #3a3a3a; color:var(--text);
+    border-radius:14px; padding:.9rem 1rem;
+  }
+  .control-dark:focus{ border-color:var(--accent); outline:0; box-shadow:0 0 0 .15rem rgba(240,164,0,.25); }
+  .control-dark::placeholder{ color:#bfc3c7; opacity:1; }
+  .invalid-hint{ color:#ffc107; font-size:.85rem; }
+
+  /* Tema ile uyumlu custom checkbox */
+  .chk-wrap{ display:inline-flex; align-items:center; gap:.5rem; user-select:none; cursor:pointer; }
+  .chk-wrap input{ appearance:none; width:0; height:0; position:absolute; }
+  .chk-wrap .box{
+    width:22px; height:22px; border-radius:6px;
+    background:#2e2e2e; border:1px solid #444; box-shadow: inset 0 0 0 2px transparent;
+    display:inline-block; position:relative; transition:all .15s ease;
+  }
+  .chk-wrap input:focus + .box{ outline:2px solid rgba(240,164,0,.35); }
+  .chk-wrap input:checked + .box{
+    background:var(--accent); border-color:var(--accent); box-shadow:none;
+  }
+  .chk-wrap input:checked + .box::after{
+    content:""; position:absolute; left:6px; top:2px; width:8px; height:14px;
+    border:3px solid #1b1b1b; border-left:none; border-top:none; transform:rotate(45deg);
+  }
+  .chk-wrap .lbl{ color:var(--text); }
+
+  /* light tema desteği */
+  @@media (prefers-color-scheme: light){
+    :root{ --bg:#f7f7f7; --card:#ffffff; --text:#1f1f1f; --muted:#6b7280; }
+    .control-dark{ background:#fff; border-color:#e5e7eb; color:#1f2937; }
+    .chk-wrap .box{ background:#fff; border-color:#d1d5db; }
+  }
+</style>
+}
+@section Scripts{
+  <partial name="_ValidationScriptsPartial" />
+}
