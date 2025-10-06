@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using RobentexService.Data;
 using RobentexService.Models;
 using RobentexService.Models.ViewModels;
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Authorization;
 namespace RobentexService.Areas.Admin.Controllers;
 
@@ -59,7 +60,7 @@ public class AccountController(ApplicationDbContext db, ILogger<AccountControlle
                                         : DateTimeOffset.UtcNow.AddHours(12)
             });
 
-        user.LastLoginUtc = DateTime.UtcNow;
+        user.LastLoginUtc = TrTime.Now;
         await db.SaveChangesAsync();
         await SaveAudit("LoginSuccess", user.Username, "Plain check: success");
 
@@ -68,7 +69,18 @@ public class AccountController(ApplicationDbContext db, ILogger<AccountControlle
 
         return RedirectToAction("Index", "Home", new { area = "Admin" });
     }
+    public static class TrTime
+    {
+        private static readonly string TzId =
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? "Turkey Standard Time"        // Windows
+                : "Europe/Istanbul";            // Linux/macOS
 
+        private static readonly TimeZoneInfo Tz = TimeZoneInfo.FindSystemTimeZoneById(TzId);
+
+        public static DateTime Now => TimeZoneInfo.ConvertTimeFromUtc(TrTime.Now, Tz);
+        public static DateTimeOffset NowOffset => TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, Tz);
+    }
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
@@ -90,7 +102,7 @@ public class AccountController(ApplicationDbContext db, ILogger<AccountControlle
                 Details = details,
                 IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
                 UserAgent = Request.Headers.UserAgent.ToString(),
-                CreatedAtUtc = DateTime.UtcNow
+                CreatedAtUtc = TrTime.Now
             };
 
             // İmza atmışsa UserId’yi doldur
