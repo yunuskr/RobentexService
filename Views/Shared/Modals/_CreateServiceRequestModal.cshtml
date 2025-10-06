@@ -1,0 +1,174 @@
+@model RobentexService.Models.ViewModels.Modals.CreateServiceRequestModalVm
+@* SADECE <template> üretir *@
+
+<template id="create-modal-tpl">
+  <div class="rtx-modal-backdrop" data-modal>
+    <div class="rtx-modal rtx-wide">
+      <form id="createForm" method="post" action="@Model.CreateUrl">
+        @Html.AntiForgeryToken()
+
+        <div class="rtx-modal-head">
+          <h3>Yeni Talep Oluştur</h3>
+          <button type="button" class="x" data-close aria-label="Kapat">&times;</button>
+        </div>
+
+        <!-- Kaydırılabilir gövde -->
+        <div class="rtx-modal-body create-grid">
+          <div class="grp">
+            <label>Firma *</label>
+            <input class="inp" name="CompanyName" required />
+          </div>
+          <div class="grp">
+            <label>Başlık</label>
+            <input class="inp" name="Title" placeholder="Opsiyonel" />
+          </div>
+          <div class="grp">
+            <label>Durum</label>
+            <select class="inp" name="Status">
+              <option value="0" selected>Yeni Talep</option>
+              <option value="1">Teklif İletildi</option>
+              <option value="2">Servis Aşaması</option>
+              <option value="3">Teklif Reddedildi</option>
+              <option value="4">Tamamlandı</option>
+              <option value="5">Fatura Edildi</option>
+            </select>
+          </div>
+
+          <div class="grp">
+            <label>Ad *</label>
+            <input class="inp" name="FirstName" required />
+          </div>
+          <div class="grp">
+            <label>Soyad *</label>
+            <input class="inp" name="LastName" required />
+          </div>
+          <div class="grp">
+            <label>Tel *</label>
+            <input class="inp" name="Phone" required />
+          </div>
+
+          <div class="grp">
+            <label>E-posta</label>
+            <input class="inp" name="Email" />
+          </div>
+          <div class="grp">
+            <label>Robot Model</label>
+            <input class="inp" name="RobotModel" />
+          </div>
+          <div class="grp">
+            <label>Robot Seri No</label>
+            <input class="inp" name="RobotSerial" />
+          </div>
+
+          <div class="grp">
+            <label>Müşteri Sipariş No</label>
+            <input class="inp" name="CustomerOrderNo" />
+          </div>
+          <div class="grp">
+            <label>Robentex Sipariş No</label>
+            <input class="inp" name="RobentexOrderNo" />
+          </div>
+          <div class="grp">
+            <label>Takip No</label>
+            <input class="inp" name="TrackingNo" />
+          </div>
+
+          <!-- Tam genişlik alanlar -->
+          <div class="grp span-all">
+            <label>Arıza Tanımı *</label>
+            <textarea class="inp ta" name="FaultDescription" rows="5" required placeholder="Arızayı ayrıntılı yazın"></textarea>
+          </div>
+          <div class="grp span-all">
+            <label>İlk Not (opsiyonel)</label>
+            <textarea class="inp ta" name="NewNote" rows="4" placeholder="+ Not ekle"></textarea>
+          </div>
+        </div>
+
+        <div class="rtx-modal-foot">
+          <button type="button" class="btn" data-close>İptal</button>
+          <button type="submit" class="btn ok">Oluştur</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+
+<style>
+:root{ --bg:#1e1e1e; --tx:#eaeaea; --mut:#a9b0b7; --b:#343434; --acc:#f2c039; }
+
+/* Backdrop */
+.rtx-modal-backdrop{
+  position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,.55);
+  display:flex; align-items:center; justify-content:center;
+  padding:12px;
+}
+
+/* Modal iskeleti: DİKEY FLEX, ORTA GÖVDE SCROLL */
+.rtx-modal.rtx-wide{
+  width:clamp(420px, 96vw, 1280px);
+  max-height:92vh;                 /* kritik: toplam yükseklik sınırı */
+  background:var(--bg); color:var(--tx);
+  border:1px solid var(--b); border-radius:14px; box-shadow:0 18px 70px rgba(0,0,0,.6);
+  display:flex; flex-direction:column;      /* kritik: head/body/foot dikey */
+  overflow:hidden;
+}
+
+/* Header & Footer sabit */
+.rtx-modal-head{
+  flex:0 0 auto;
+  padding:12px 14px; border-bottom:1px solid var(--b);
+  display:flex; align-items:center; gap:10px;
+}
+.rtx-modal-head h3{ margin:0; font-size:1.05rem; }
+.rtx-modal-head .x{
+  margin-left:auto; background:transparent; border:0; color:#bbb;
+  font-size:26px; line-height:1; cursor:pointer;
+}
+.rtx-modal-foot{
+  flex:0 0 auto;
+  padding:10px 14px; border-top:1px solid var(--b);
+  display:flex; gap:8px; justify-content:flex-end;
+  background:var(--bg);
+}
+
+/* Gövde: ESNER + SCROLL */
+.rtx-modal-body{
+  flex:1 1 auto;                  /* kritik: kalan alanı kaplasın */
+  min-height:0;                   /* kritik: overflow çalışsın */
+  overflow:auto;                  /* kritik: KAYDIRMA burada */
+  padding:12px 14px;
+}
+
+/* Grid düzeni (genişte 3, normalde 2 sütun) */
+.create-grid{
+  display:grid; gap:12px;
+  grid-template-columns:1fr 1fr;       /* varsayılan 2 sütun */
+}
+@@media (min-width:1200px){
+  .create-grid{ grid-template-columns: repeat(3, 1fr); }  /* genişte 3 sütun */
+}
+
+/* Tam genişlik alanlar */
+.span-all{ grid-column:1 / -1; }
+
+/* Form görseli */
+label{ color:var(--mut); font-size:.92rem; }
+.inp{
+  background:#2a2a2a; color:var(--tx); border:1px solid var(--b);
+  border-radius:12px; padding:.55rem .8rem; font-size:1rem; min-height:40px;
+}
+.inp:focus{ outline:none; border-color:#4a4a4a; }
+.ta{ line-height:1.35; resize:vertical; }
+
+/* Butonlar */
+.btn{ border:none; border-radius:999px; padding:.48rem 1rem; font-weight:700; cursor:pointer; }
+.btn.ok{ background:var(--acc); color:#111; }
+.btn:hover{ filter:brightness(1.06); }
+
+/* Küçük ekran tek sütun */
+@@media (max-width: 820px){
+  .create-grid{ grid-template-columns:1fr; }
+  .span-all{ grid-column:auto; }
+}
+</style>

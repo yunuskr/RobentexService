@@ -340,3 +340,4 @@ C:\Users\yunusemre.kara\Desktop\RobentexService\obj\Debug\net8.0\RobentexService
 C:\Users\yunusemre.kara\Desktop\RobentexService\obj\Debug\net8.0\RobentexService.genruntimeconfig.cache
 C:\Users\yunusemre.kara\Desktop\RobentexService\bin\Debug\net8.0\RobentexService.pdb
 C:\Users\yunusemre.kara\Desktop\RobentexService\obj\Debug\net8.0\ref\RobentexService.dll
+C:\Users\yunusemre.kara\Desktop\RobentexService\obj\Debug\net8.0\RobentexService.sourcelink.json

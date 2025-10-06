@@ -1,8 +1,6 @@
 (function(){
-  // Sayfadan alacağız (razor’da küçük bir inline script ile vereceğiz)
   const EDIT_DATA_URL = window.__RTX_EDIT_DATA_URL__;
 
-  // Düzenle tıklanınca modalı aç
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('.open-edit');
     if (!btn) return;
@@ -27,12 +25,12 @@
       const form = root.querySelector('#editForm');
 
       // Admin alanları
-      form.querySelector('input[name="Id"]').value               = data.id;
-      form.querySelector('input[name="Title"]').value            = data.title ?? '';
-      form.querySelector('input[name="CustomerOrderNo"]').value  = data.customerOrderNo ?? '';
-      form.querySelector('input[name="RobentexOrderNo"]').value  = data.robentexOrderNo ?? '';
-      form.querySelector('input[name="TrackingNo"]').value       = data.trackingNo ?? '';
-      form.querySelector('select[name="Status"]').value          = (data.status ?? 0);
+      setVal(form,'Id',                data.id);
+      setVal(form,'Title',             data.title ?? '');
+      setVal(form,'CustomerOrderNo',   data.customerOrderNo ?? '');
+      setVal(form,'RobentexOrderNo',   data.robentexOrderNo ?? '');
+      setVal(form,'TrackingNo',        data.trackingNo ?? '');
+      form.querySelector('select[name="Status"]').value = (data.status ?? 0);
 
       // Readonly alanlar
       setDisp(root,'CompanyName',      data.companyName);
@@ -45,18 +43,25 @@
       setDisp(root,'FaultDescription', data.faultDescription);
       setDisp(root,'CreatedAt',        fmtDate(data.createdAt));
 
-      // Notlar
+      // --- Not listesi ARTIK GÖSTERİLMİYOR ---
+      // Eğer partial içinde [data-notes] yoksa sorun çıkmaması için null-check:
       const notesWrap = root.querySelector('[data-notes]');
-      notesWrap.innerHTML = '';
-      if (Array.isArray(data.notes) && data.notes.length){
-        data.notes.forEach(n=>{
-          const div = document.createElement('div');
-          div.className = 'note';
-          div.innerHTML = `
-            <div class="when">${fmtDate(n.createdAt)} — ${escapeHtml(n.createdBy || '-')}</div>
-            <div class="txt">${escapeHtml(n.text || '')}</div>`;
-          notesWrap.appendChild(div);
-        });
+      if (notesWrap) {
+        notesWrap.innerHTML = '';
+        // Notları artık doldurmuyoruz. İleride tekrar göstermek istersen,
+        // aşağıdaki bloğu açıp kullanabilirsin.
+        /*
+        if (Array.isArray(data.notes) && data.notes.length){
+          data.notes.forEach(n=>{
+            const div = document.createElement('div');
+            div.className = 'note';
+            div.innerHTML = `
+              <div class="when">${fmtDate(n.createdAt)} — ${escapeHtml(n.createdBy || '-')}</div>
+              <div class="txt">${escapeHtml(n.text || '')}</div>`;
+            notesWrap.appendChild(div);
+          });
+        }
+        */
       }
 
       // kapatma
@@ -79,6 +84,9 @@
         else { alert('Kaydedilemedi: ' + resp.status); }
       });
 
+      // UX: ilk inputa odaklan
+      form.querySelector('input[name="Title"]')?.focus();
+
     } catch (err) {
       console.error(err);
       alert('Düzenleme verileri yüklenemedi.');
@@ -86,6 +94,10 @@
   });
 
   // yardımcılar
+  function setVal(form, name, val){
+    const el = form.querySelector(`[name="${name}"]`);
+    if (el) el.value = val ?? '';
+  }
   function setDisp(scope, key, val){
     const el = scope.querySelector(`[data-disp="${key}"]`);
     if(!el) return;

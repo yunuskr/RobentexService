@@ -20,57 +20,65 @@
       <form asp-action="Index" method="post" class="row g-3">
         @Html.AntiForgeryToken()
 
-        <!-- Ad / Soyad -->
         <div class="col-12 col-md-6">
           <label asp-for="FirstName" class="form-label"></label>
-          <input asp-for="FirstName" class="form-control control-dark" autocomplete="given-name" inputmode="text" />
+          <input asp-for="FirstName" class="form-control control-dark"
+                autocomplete="given-name" inputmode="text" required />
           <span asp-validation-for="FirstName" class="invalid-hint"></span>
         </div>
 
         <div class="col-12 col-md-6">
           <label asp-for="LastName" class="form-label"></label>
-          <input asp-for="LastName" class="form-control control-dark" autocomplete="family-name" inputmode="text" />
+          <input asp-for="LastName" class="form-control control-dark"
+                autocomplete="family-name" inputmode="text" required />
           <span asp-validation-for="LastName" class="invalid-hint"></span>
         </div>
 
-        <!-- Seri No / Model -->
         <div class="col-12 col-md-6">
           <label asp-for="RobotSerial" class="form-label"></label>
-          <input asp-for="RobotSerial" class="form-control control-dark" autocomplete="off" inputmode="text" />
+          <input asp-for="RobotSerial" class="form-control control-dark"
+                autocomplete="off" inputmode="text" required />
+          <span asp-validation-for="RobotSerial" class="invalid-hint"></span>
         </div>
 
         <div class="col-12 col-md-6">
           <label asp-for="RobotModel" class="form-label"></label>
-          <input asp-for="RobotModel" class="form-control control-dark" autocomplete="off" inputmode="text" />
+          <input asp-for="RobotModel" class="form-control control-dark"
+                autocomplete="off" inputmode="text" required />
+          <span asp-validation-for="RobotModel" class="invalid-hint"></span>
         </div>
 
-        <!-- Firma -->
         <div class="col-12">
           <label asp-for="CompanyName" class="form-label"></label>
-          <input asp-for="CompanyName" class="form-control control-dark" autocomplete="organization" />
+          <input asp-for="CompanyName" class="form-control control-dark"
+                autocomplete="organization" required />
+          <span asp-validation-for="CompanyName" class="invalid-hint"></span>
         </div>
 
-        <!-- Arıza Tanımı -->
         <div class="col-12">
           <label asp-for="FaultDescription" class="form-label"></label>
-          <textarea asp-for="FaultDescription" rows="6" class="form-control control-dark" placeholder="Lütfen sorunu mümkün olduğunca detaylı açıklayın"></textarea>
+          <textarea asp-for="FaultDescription" rows="6" class="form-control control-dark"
+                    placeholder="Lütfen sorunu mümkün olduğunca detaylı açıklayın"
+                    minlength="10" required></textarea>
+          <span asp-validation-for="FaultDescription" class="invalid-hint"></span>
         </div>
 
-        <!-- E-posta / Tel -->
         <div class="col-12 col-md-6">
           <label asp-for="Email" class="form-label"></label>
-          <input asp-for="Email" class="form-control control-dark" autocomplete="email" inputmode="email" />
+          <input asp-for="Email" class="form-control control-dark"
+                autocomplete="email" inputmode="email" required />
           <span asp-validation-for="Email" class="invalid-hint"></span>
         </div>
 
         <div class="col-12 col-md-6">
           <label asp-for="Phone" class="form-label"></label>
-          <input asp-for="Phone" class="form-control control-dark" autocomplete="tel" inputmode="tel" />
+          <input asp-for="Phone" class="form-control control-dark"
+                autocomplete="tel" inputmode="tel" required />
+          <span asp-validation-for="Phone" class="invalid-hint"></span>
         </div>
 
-        <!-- Gönder -->
         <div class="col-12 mt-4">
-            <button class="btn btn-warning w-100 btn-lg fw-semibold">Gönder</button>
+          <button class="btn btn-warning w-100 btn-lg fw-semibold">Gönder</button>
         </div>
       </form>
     </div>
@@ -138,4 +146,7 @@
 }
 @section Scripts{
   <partial name="_ValidationScriptsPartial" />
+
+
+  
 }

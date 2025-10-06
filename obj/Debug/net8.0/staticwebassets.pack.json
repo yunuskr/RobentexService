@@ -25,6 +25,14 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "C:\\Users\\yunusemre.kara\\Desktop\\RobentexService\\wwwroot\\js\\create-modal.js",
+      "PackagePath": "staticwebassets\\js\\create-modal.js"
+    },
+    {
+      "Id": "C:\\Users\\yunusemre.kara\\Desktop\\RobentexService\\wwwroot\\js\\details-modal.js",
+      "PackagePath": "staticwebassets\\js\\details-modal.js"
+    },
+    {
       "Id": "C:\\Users\\yunusemre.kara\\Desktop\\RobentexService\\wwwroot\\js\\edit-modal.js",
       "PackagePath": "staticwebassets\\js\\edit-modal.js"
     },

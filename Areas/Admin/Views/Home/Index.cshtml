@@ -74,7 +74,7 @@
 
     <div class="search">
       <span class="mag">🔍</span>
-      <input type="text" placeholder="Ara: #numara, başlık, müşteri..." />
+      <input id="searchBox" type="text" placeholder="Ara: #numara, başlık, müşteri..." />
     </div>
   </header>
 
@@ -86,7 +86,42 @@
       <div class="sort" role="button" tabindex="0" aria-label="Duruma göre sırala">Durum <span class="caret">▾</span></div>
       <div>Not</div>
       <div class="right">
-        <button class="icon-btn" type="button" title="Yeni talep" aria-label="Yeni talep">+</button>
+        <button class="create-btn open-create" type="button" aria-label="Yeni talep">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span class="lbl">Yeni Talep</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtre Barı -->
+    <div class="list-filters">
+      <div class="f-group">
+        <label for="statusFilter">Durum</label>
+        <select id="statusFilter">
+          <option value="">Tümü</option>
+          <option value="0">Yeni Talep</option>
+          <option value="1">Teklif İletildi</option>
+          <option value="2">Servis Aşaması</option>
+          <option value="3">Teklif Reddedildi</option>
+          <option value="4">Tamamlandı</option>
+          <option value="5">Fatura Edildi</option>
+        </select>
+      </div>
+
+      <div class="f-group">
+        <label for="dateFrom">Tarih (Başlangıç)</label>
+        <input id="dateFrom" type="date" />
+      </div>
+
+      <div class="f-group">
+        <label for="dateTo">Tarih (Bitiş)</label>
+        <input id="dateTo" type="date" />
+      </div>
+
+      <div class="f-actions">
+        <button id="resetFilters" type="button" class="btn btn-dark" title="Filtreleri temizle">Sıfırla</button>
       </div>
     </div>
 
@@ -95,7 +130,12 @@
       {
         foreach (var item in all)
         {
-          <div class="list-row">
+          <div class="list-row"
+               data-id="@item.Id"
+               data-status="@((int)item.Status)"
+               data-created="@item.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd")"
+               data-title="@CardTitle(item)"
+               data-note="@(LastNote(item))">
             <!-- Başlık -->
             <div class="cell title">
               <div class="meta">Oluşturma Tarihi: @item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy / HH:mm")</div>
@@ -114,12 +154,11 @@
 
             <!-- Not -->
             <div class="cell note">@(LastNote(item) is string n && n.Length>0 ? n : "—")</div>
-            
+
             <!-- Aksiyonlar -->
             <div class="cell actions">
               <button class="btn btn-dark open-edit" type="button" data-id="@item.Id" aria-label="Talep #@item.Id düzenle">Düzenle</button>
-              <a class="btn btn-ok"
-                 href="@Url.Action("Details","ServiceRequests", new { area="Admin", id=item.Id })">Detay Gör</a>
+              <button class="btn btn-ok open-details" type="button" data-id="@item.Id">Detay Gör</button>
             </div>
           </div>
         }
@@ -137,16 +176,23 @@
   </footer>
 </div>
 
-@* === Modal TEMPLATE artık partial’dan geliyor === *@
+@* === Modal TEMPLATE partial === *@
 @await Html.PartialAsync(
   "~/Views/Shared/Modals/_EditServiceRequestModal.cshtml",
   new RobentexService.Models.ViewModels.Modals.EditServiceRequestModalVm{
       SaveUrl = saveUrl!
   }
+  
 )
-
+@await Html.PartialAsync("~/Views/Shared/Modals/_ServiceRequestDetailsModal.cshtml")
+@await Html.PartialAsync(
+  "~/Views/Shared/Modals/_CreateServiceRequestModal.cshtml",
+  new RobentexService.Models.ViewModels.Modals.CreateServiceRequestModalVm{
+      CreateUrl = Url.Action("Create", "ServiceRequests", new { area = "Admin" })!
+  }
+)
 @section Styles{
-  <!-- Modal ortak stilleri -->
+  <!-- Modal ortak stiller -->
   <link rel="stylesheet" href="~/css/rtx-modal.css" asp-append-version="true" />
   <style>
   :root{
@@ -199,8 +245,28 @@
     max-width: 1500px;
     margin: 0 auto 10px;
   }
+  .create-btn{
+  display:inline-flex; align-items:center; gap:10px;
+  background: var(--amber); color:#111;
+  border:0; border-radius:999px;
+  padding:.55rem 1rem; font-weight:800;
+  box-shadow: 0 6px 18px rgba(242,192,57,.25);
+  transition: transform .08s ease, filter .15s ease, box-shadow .15s ease;
+  }
+  .create-btn .ico{ width:18px; height:18px; display:block; }
+  .create-btn:hover{ filter:brightness(1.06); box-shadow:0 8px 22px rgba(242,192,57,.32); }
+  .create-btn:active{ transform: translateY(1px); }
 
-  /* → kolon genişlikleri */
+  /* Dar ekranda sadece ikon göster */
+  @@media (max-width: 900px){
+    .create-btn{ padding:.48rem .6rem; border-radius:12px; }
+    .create-btn .lbl{ display:none; }
+    .create-btn .ico{ width:20px; height:20px; }
+  }
+
+/* Hücre hizası için (opsiyonel) */
+.list-head .right{ display:flex; justify-content:flex-end; }
+  /* header */
   .list-head{
     display:grid;
     grid-template-columns: 2fr 150px 220px 1.2fr 200px;
@@ -210,8 +276,20 @@
   .list-head .sort{ display:flex; align-items:center; gap:6px; cursor:pointer; }
   .list-head .caret{ opacity:.8; }
 
+  /* filtre barı */
+  .list-filters{
+    display:flex; gap:12px; align-items:end; padding:10px 12px; background:#383838; border-top:1px solid #444; border-bottom:1px solid #444;
+  }
+  .list-filters .f-group{ display:flex; flex-direction:column; gap:6px; }
+  .list-filters label{ color:#d0d6dc; font-size:.9rem; }
+  .list-filters select, .list-filters input[type="date"]{
+    background:#2c2c2c; border:1px solid #3a3a3a; color:#eaeaea; border-radius:10px; padding:.45rem .6rem; min-height:36px;
+  }
+  .list-filters .f-actions{ margin-left:auto; }
+
+  /* gövde */
   .list-body{
-    max-height: calc(100vh - 260px);
+    max-height: calc(100vh - 300px);
     overflow:auto;
     padding:8px;
   }
@@ -269,42 +347,111 @@
 }
 
 @section Scripts{
+  <!-- Modal kodu için endpoint değişkeni -->
   <script>
-    // Modal edit datası için endpoint (JS dosyası buradan alacak)
     window.__RTX_EDIT_DATA_URL__ = '@editDataUrl';
   </script>
+  <script src="~/js/create-modal.js" asp-append-version="true"></script>
+  <!-- Modal aç/kaydet JS (not listesi göstermiyor, sadece NewNote alanı) -->
   <script src="~/js/edit-modal.js" asp-append-version="true"></script>
 
+  <!-- Filtreleme + Sıralama -->
   <script>
-  // (opsiyonel) basit sıralama togglesı
-  let sortState = { key:'createdAt', dir:'desc' };
-  const rows = () => Array.from(document.querySelectorAll('.list-body .list-row'));
-  const parseDate = s => {
-    const m = (s || '').match(/(\d{2}\.\d{2}\.\d{4}).*?(\d{2}:\d{2})/);
-    if (!m) return 0;
-    const [d, mo, y] = m[1].split('.');
-    return new Date(`${y}-${mo}-${d}T${m[2]}:00`).getTime();
-  };
-  const sortRows = () => {
-    const listBody = document.querySelector('.list-body');
-    const arr = rows().map(r=>{
-      const meta = r.querySelector('.meta')?.textContent || '';
-      const createdAt = parseDate(meta);
-      const status = r.querySelector('.cell.status')?.innerText.trim() || '';
-      return { r, createdAt, status };
+    // === Filtreleme ===
+    const els = {
+      search: document.getElementById('searchBox'),
+      status: document.getElementById('statusFilter'),
+      from:   document.getElementById('dateFrom'),
+      to:     document.getElementById('dateTo'),
+      reset:  document.getElementById('resetFilters'),
+      list:   document.querySelector('.list-body')
+    };
+
+    const getRows = () => Array.from(els.list.querySelectorAll('.list-row'));
+
+    function passText(r, q){
+      if(!q) return true;
+      q = q.toLowerCase().trim();
+      const title = (r.dataset.title || '').toLowerCase();
+      const note  = (r.dataset.note  || '').toLowerCase();
+      const ord   = (r.querySelector('.cell.ord')?.textContent || '').toLowerCase();
+      return title.includes(q) || note.includes(q) || ord.includes(q);
+    }
+    function passStatus(r, st){
+      if(st === '' || st == null) return true;
+      return r.dataset.status === String(st);
+    }
+    function passDate(r, dFrom, dTo){
+      const d = r.dataset.created; // "yyyy-MM-dd"
+      if(!d) return true;
+      if(dFrom && d < dFrom) return false;
+      if(dTo   && d > dTo)   return false;
+      return true;
+    }
+
+    function applyFilters(){
+      const q   = els.search?.value || '';
+      const st  = els.status?.value ?? '';
+      const df  = els.from?.value || '';
+      const dt  = els.to?.value   || '';
+
+      getRows().forEach(r=>{
+        const show = passText(r,q) && passStatus(r,st) && passDate(r,df,dt);
+        r.style.display = show ? '' : 'none';
+      });
+    }
+
+    // eventler
+    els.search?.addEventListener('input', applyFilters);
+    els.status?.addEventListener('change', applyFilters);
+    els.from?.addEventListener('change', applyFilters);
+    els.to?.addEventListener('change', applyFilters);
+    els.reset?.addEventListener('click', ()=>{
+      if(els.search) els.search.value='';
+      if(els.status) els.status.value='';
+      if(els.from)   els.from.value='';
+      if(els.to)     els.to.value='';
+      applyFilters();
     });
-    arr.sort((a,b)=>{
-      const dir = sortState.dir === 'asc' ? 1 : -1;
-      const ka = a[sortState.key], kb = b[sortState.key];
-      return (ka>kb ? 1 : ka<kb ? -1 : 0) * dir;
+
+    // === Sıralama (filtrelerle uyumlu) ===
+    let sortState = { key:'createdAt', dir:'desc' };
+    const parseRowDate = (r) => {
+      const s = r.dataset.created;
+      return s ? new Date(s + 'T00:00:00').getTime() : 0;
+    };
+
+    function sortRows(){
+      const arr = getRows();
+      const meta = arr.map(r=>{
+        const statusText = r.querySelector('.cell.status')?.innerText.trim() || '';
+        return { r, createdAt: parseRowDate(r), status: statusText };
+      });
+
+      meta.sort((a,b)=>{
+        const dir = sortState.dir === 'asc' ? 1 : -1;
+        const ka = a[sortState.key];
+        const kb = b[sortState.key];
+        return (ka>kb ? 1 : ka<kb ? -1 : 0) * dir;
+      });
+
+      meta.forEach(x=>els.list.appendChild(x.r));
+    }
+
+    document.querySelector('.list-head .sort')?.addEventListener('click', ()=>{
+      if (sortState.key === 'createdAt') sortState = { key:'status', dir:'asc' };
+      else if (sortState.key === 'status') sortState = { key:'status', dir: (sortState.dir==='asc'?'desc':'asc') };
+      else sortState = { key:'createdAt', dir:'desc' };
+      sortRows();
     });
-    arr.forEach(x=>listBody.appendChild(x.r));
-  };
-  document.querySelector('.list-head .sort')?.addEventListener('click', ()=>{
-    if (sortState.key === 'createdAt') sortState = { key:'status', dir:'asc' };
-    else if (sortState.key === 'status') sortState = { key:'status', dir: (sortState.dir==='asc'?'desc':'asc') };
-    else sortState = { key:'createdAt', dir:'desc' };
-    sortRows();
-  });
+
+    // İlk yüklemede
+    applyFilters();
   </script>
+  <script>
+    window.__RTX_EDIT_DATA_URL__    = '@editDataUrl';
+    window.__RTX_DETAILS_DATA_URL__ = '@Url.Action("DetailsData","Home", new { area="Admin" })';
+  </script>
+  <script src="~/js/edit-modal.js" asp-append-version="true"></script>
+  <script src="~/js/details-modal.js" asp-append-version="true"></script>
 }

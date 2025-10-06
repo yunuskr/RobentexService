@@ -17,27 +17,27 @@ public class ServiceRequest
     [StringLength(80)]
     public string LastName { get; set; } = string.Empty;
 
-    [Display(Name = "Robot Seri No")]
+    [Required,Display(Name = "Robot Seri No")]
     [StringLength(80)]
     public string? RobotSerial { get; set; }
 
-    [Display(Name = "Robot Model")]
+    [Required,Display(Name = "Robot Model")]
     [StringLength(80)]
     public string? RobotModel { get; set; }
 
-    [Display(Name = "Firma Adı")]
+    [Required,Display(Name = "Firma Adı")]
     [StringLength(120)]
     public string? CompanyName { get; set; }
 
-    [Display(Name = "Arıza Tanımı")]
+    [Required,Display(Name = "Arıza Tanımı")]
     [StringLength(2000)]
     public string? FaultDescription { get; set; }
 
-    [EmailAddress, Display(Name = "E-posta")]
+    [Required,EmailAddress, Display(Name = "E-posta")]
     [StringLength(200)]
     public string? Email { get; set; }
 
-    [Phone, Display(Name = "Tel")]
+    [Required,Phone, Display(Name = "Tel")]
     [StringLength(40)]
     public string? Phone { get; set; }
 

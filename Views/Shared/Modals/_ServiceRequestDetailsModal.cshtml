@@ -1,0 +1,103 @@
+@* SADECE <template> üretir *@
+<template id="details-modal-tpl">
+  <div class="rtx-modal-backdrop" data-modal>
+    <div class="rtx-modal">
+      <div class="rtx-modal-head">
+        <h3>Talep Detayı</h3>
+        <button type="button" class="x" data-close aria-label="Kapat">&times;</button>
+      </div>
+
+      <!-- İKİ SÜTUNLU IZGARA -->
+      <div class="rtx-modal-body details-grid">
+        <!-- Sıra 1 -->
+        <div class="grp">
+          <label>Firma</label>
+          <input class="inp ro" data-dsp="CompanyName" readonly />
+        </div>
+        <div class="grp">
+          <label>Başlık</label>
+          <input class="inp ro" data-dsp="Title" readonly />
+        </div>
+
+        <!-- Sıra 2 -->
+        <div class="grp">
+          <label>Durum</label>
+          <input class="inp ro" data-dsp="StatusText" readonly />
+        </div>
+        <div class="grp">
+          <label>Takip No</label>
+          <input class="inp ro" data-dsp="TrackingNo" readonly />
+        </div>
+
+        <!-- Sıra 3 -->
+        <div class="grp">
+          <label>Talep Eden</label>
+          <input class="inp ro" data-dsp="Requester" readonly />
+        </div>
+        <div class="grp">
+          <label>Talep Eden Tel</label>
+          <input class="inp ro" data-dsp="Phone" readonly />
+        </div>
+
+        <!-- Sıra 4 -->
+        <div class="grp">
+          <label>Talep Eden Mail</label>
+          <input class="inp ro" data-dsp="Email" readonly />
+        </div>
+        <div class="grp">
+          <label>Robot Model</label>
+          <input class="inp ro" data-dsp="RobotModel" readonly />
+        </div>
+
+        <!-- Sıra 5 -->
+        <div class="grp">
+          <label>Robot Seri No</label>
+          <input class="inp ro" data-dsp="RobotSerial" readonly />
+        </div>
+        <div class="grp">
+          <label>Son Düzenlenme</label>
+          <input class="inp ro" data-dsp="LastModified" readonly />
+        </div>
+
+        <!-- NOTLAR: TAM GENİŞLİK + SCROLL -->
+        <div class="grp row-notes">
+          <label>Notlar</label>
+          <div class="notes" data-notes></div>
+        </div>
+      </div>
+
+      <div class="rtx-modal-foot">
+        <button type="button" class="btn" data-close>Kapat</button>
+      </div>
+    </div>
+  </div>
+</template>
+<style>
+/* Detay modalına özel grid */
+/* Dış gövde kaymasın, sadece notlar kaydırılsın */
+/* Varsayılan: küçük/orta ekranlarda gövde scroll edebilir */
+.rtx-modal-body.details-grid{
+  overflow: auto;   /* küçük ekranlarda ulaşılabilirlik */
+  min-height: 0;
+}
+
+/* Notlar her zaman kendi içinde scroll */
+.details-grid .row-notes{ grid-column: 1 / -1; min-height: 0; }
+.details-grid .notes{
+  max-height: 220px;      /* küçük ekran için */
+  overflow: auto;
+}
+
+/* Daha yüksek ekranlarda (masaüstü) dış scroll'u kapat,
+   notlar listesini biraz daha büyüt */
+@@media (min-height: 820px){
+  .rtx-modal-body.details-grid{ overflow: hidden; }
+  .details-grid .notes{ max-height: 320px; }
+}
+
+/* Çok kısa ekranlar için daha da küçült (opsiyonel) */
+@@media (max-height: 640px){
+  .details-grid .notes{ max-height: 180px; }
+}
+
+</style>

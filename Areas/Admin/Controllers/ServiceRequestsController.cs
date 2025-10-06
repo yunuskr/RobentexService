@@ -42,7 +42,73 @@ public class ServiceRequestsController(ApplicationDbContext db, ILogger<ServiceR
         Response.Headers["X-Debug-View"] = "_EditRequestModal";
         return PartialView("_EditRequestModal", vm);
     }
+// Basit DTO (form alanları)
+public sealed class CreateDto
+{
+    public string? CompanyName { get; set; }
+    public string? Title { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Phone { get; set; }
+    public string? Email { get; set; }
+    public string? RobotModel { get; set; }
+    public string? RobotSerial { get; set; }
+    public string? CustomerOrderNo { get; set; }
+    public string? RobentexOrderNo { get; set; }
+    public string? TrackingNo { get; set; }
+    public ServiceStatus Status { get; set; } = ServiceStatus.YeniTalep;
+    public string? FaultDescription { get; set; }
+    public string? NewNote { get; set; }
+}
 
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create(CreateDto dto)
+{
+    // basit zorunlu alan kontrolü
+    if (string.IsNullOrWhiteSpace(dto.CompanyName) ||
+        string.IsNullOrWhiteSpace(dto.FirstName)   ||
+        string.IsNullOrWhiteSpace(dto.LastName)    ||
+        string.IsNullOrWhiteSpace(dto.Phone)       ||
+        string.IsNullOrWhiteSpace(dto.FaultDescription))
+    {
+        return BadRequest("Zorunlu alanlar eksik.");
+    }
+
+    var entity = new ServiceRequest
+    {
+        CompanyName = dto.CompanyName?.Trim(),
+        Title = string.IsNullOrWhiteSpace(dto.Title) ? null : dto.Title!.Trim(),
+        FirstName = dto.FirstName?.Trim(),
+        LastName  = dto.LastName?.Trim(),
+        Phone     = dto.Phone?.Trim(),
+        Email     = dto.Email?.Trim(),
+        RobotModel  = dto.RobotModel?.Trim(),
+        RobotSerial = dto.RobotSerial?.Trim(),
+        CustomerOrderNo = dto.CustomerOrderNo?.Trim(),
+        RobentexOrderNo = dto.RobentexOrderNo?.Trim(),
+        TrackingNo = dto.TrackingNo?.Trim(),
+        Status = dto.Status,
+        FaultDescription = dto.FaultDescription?.Trim(),
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow    // sende alanın adı UpdatedAt
+    };
+
+    if (!string.IsNullOrWhiteSpace(dto.NewNote))
+    {
+        entity.Notes = new List<ServiceRequestNote>{
+            new ServiceRequestNote{
+                Text = dto.NewNote!.Trim(),
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = User.Identity?.Name ?? "admin"
+            }
+        };
+    }
+
+    db.ServiceRequests.Add(entity);
+    await db.SaveChangesAsync();
+    return Ok(new { id = entity.Id });   // JS tarafı sayfayı yeniliyor
+}
     // Kaydet (POST) – admin alanları güncelle + not ekle (varsa)
     [HttpPost]
     [ValidateAntiForgeryToken]

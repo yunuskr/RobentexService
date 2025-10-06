@@ -4,13 +4,13 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\rtx-modal.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"ahd1nfziz2"},{"Name":"integrity","Value":"sha256-fr0Ikom5vN5vLwS\u002BZShRBBg5z6wE0zi8JAOvHmCP/xI="},{"Name":"label","Value":"_content/RobentexService/css/rtx-modal.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"2077"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022fr0Ikom5vN5vLwS\u002BZShRBBg5z6wE0zi8JAOvHmCP/xI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 29 Sep 2025 09:51:55 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"2077"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022fr0Ikom5vN5vLwS\u002BZShRBBg5z6wE0zi8JAOvHmCP/xI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 06 Oct 2025 09:04:22 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/RobentexService/css/rtx-modal.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\rtx-modal.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-fr0Ikom5vN5vLwS\u002BZShRBBg5z6wE0zi8JAOvHmCP/xI="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"2077"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022fr0Ikom5vN5vLwS\u002BZShRBBg5z6wE0zi8JAOvHmCP/xI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 29 Sep 2025 09:51:55 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"2077"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022fr0Ikom5vN5vLwS\u002BZShRBBg5z6wE0zi8JAOvHmCP/xI=\u0022"},{"Name":"Last-Modified","Value":"Mon, 06 Oct 2025 09:04:22 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/RobentexService/css/site.c2tiyv64ts.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
@@ -60,17 +60,41 @@
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-n5W08YXUxj/Pud40V\u002BInv9JxlHiybOHOiXZsNb5bTE0="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"20214"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022n5W08YXUxj/Pud40V\u002BInv9JxlHiybOHOiXZsNb5bTE0=\u0022"},{"Name":"Last-Modified","Value":"Wed, 21 Aug 2024 10:32:57 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/RobentexService/js/edit-modal.her8qpy8yp.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\edit-modal.js'))</AssetFile>
+    <StaticWebAssetEndpoint Include="_content/RobentexService/js/create-modal.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\create-modal.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"her8qpy8yp"},{"Name":"integrity","Value":"sha256-ubpy3dcBo69Q7l7e/a1yfSVBOO5pQIoUhp4KyRIArxg="},{"Name":"label","Value":"_content/RobentexService/js/edit-modal.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"4275"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022ubpy3dcBo69Q7l7e/a1yfSVBOO5pQIoUhp4KyRIArxg=\u0022"},{"Name":"Last-Modified","Value":"Mon, 29 Sep 2025 09:51:31 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-rl06lwKE9/e9fje1Qx\u002BPCglG/0EkqvVRaEg69dEokz8="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1716"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022rl06lwKE9/e9fje1Qx\u002BPCglG/0EkqvVRaEg69dEokz8=\u0022"},{"Name":"Last-Modified","Value":"Mon, 06 Oct 2025 08:55:38 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/RobentexService/js/create-modal.yso3quvqg1.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\create-modal.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"yso3quvqg1"},{"Name":"integrity","Value":"sha256-rl06lwKE9/e9fje1Qx\u002BPCglG/0EkqvVRaEg69dEokz8="},{"Name":"label","Value":"_content/RobentexService/js/create-modal.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1716"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022rl06lwKE9/e9fje1Qx\u002BPCglG/0EkqvVRaEg69dEokz8=\u0022"},{"Name":"Last-Modified","Value":"Mon, 06 Oct 2025 08:55:38 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/RobentexService/js/details-modal.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\details-modal.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-ka4FyaN4tbKAkbll92W0XORD6ThYJZnsboFLjTnVohQ="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"3089"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022ka4FyaN4tbKAkbll92W0XORD6ThYJZnsboFLjTnVohQ=\u0022"},{"Name":"Last-Modified","Value":"Mon, 06 Oct 2025 08:34:08 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/RobentexService/js/details-modal.zn140o1sas.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\details-modal.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"zn140o1sas"},{"Name":"integrity","Value":"sha256-ka4FyaN4tbKAkbll92W0XORD6ThYJZnsboFLjTnVohQ="},{"Name":"label","Value":"_content/RobentexService/js/details-modal.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"3089"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022ka4FyaN4tbKAkbll92W0XORD6ThYJZnsboFLjTnVohQ=\u0022"},{"Name":"Last-Modified","Value":"Mon, 06 Oct 2025 08:34:08 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/RobentexService/js/edit-modal.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\edit-modal.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-ubpy3dcBo69Q7l7e/a1yfSVBOO5pQIoUhp4KyRIArxg="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"4275"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022ubpy3dcBo69Q7l7e/a1yfSVBOO5pQIoUhp4KyRIArxg=\u0022"},{"Name":"Last-Modified","Value":"Mon, 29 Sep 2025 09:51:31 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-ozPw3HFegAsx\u002B5sEepF/B83ol3UdjJTRIocP2GsJTzU="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"4576"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022ozPw3HFegAsx\u002B5sEepF/B83ol3UdjJTRIocP2GsJTzU=\u0022"},{"Name":"Last-Modified","Value":"Mon, 06 Oct 2025 07:59:10 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/RobentexService/js/edit-modal.vltjnw6jrr.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\edit-modal.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"vltjnw6jrr"},{"Name":"integrity","Value":"sha256-ozPw3HFegAsx\u002B5sEepF/B83ol3UdjJTRIocP2GsJTzU="},{"Name":"label","Value":"_content/RobentexService/js/edit-modal.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"4576"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022ozPw3HFegAsx\u002B5sEepF/B83ol3UdjJTRIocP2GsJTzU=\u0022"},{"Name":"Last-Modified","Value":"Mon, 06 Oct 2025 07:59:10 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/RobentexService/js/site.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\site.js'))</AssetFile>
@@ -772,13 +796,13 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\RobentexService.zlzj3hfvk0.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-B7Jve2amMYswChfciX7dAJQBBXIdZQpQT5wFRwH8Z9M="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1133"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022B7Jve2amMYswChfciX7dAJQBBXIdZQpQT5wFRwH8Z9M=\u0022"},{"Name":"Last-Modified","Value":"Fri, 03 Oct 2025 12:45:26 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1133"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022B7Jve2amMYswChfciX7dAJQBBXIdZQpQT5wFRwH8Z9M=\u0022"},{"Name":"Last-Modified","Value":"Mon, 06 Oct 2025 14:13:54 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/RobentexService/RobentexService.zlzj3hfvk0.bundle.scp.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\RobentexService.zlzj3hfvk0.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"zlzj3hfvk0"},{"Name":"integrity","Value":"sha256-B7Jve2amMYswChfciX7dAJQBBXIdZQpQT5wFRwH8Z9M="},{"Name":"label","Value":"_content/RobentexService/RobentexService.bundle.scp.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1133"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022B7Jve2amMYswChfciX7dAJQBBXIdZQpQT5wFRwH8Z9M=\u0022"},{"Name":"Last-Modified","Value":"Fri, 03 Oct 2025 12:45:26 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1133"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022B7Jve2amMYswChfciX7dAJQBBXIdZQpQT5wFRwH8Z9M=\u0022"},{"Name":"Last-Modified","Value":"Mon, 06 Oct 2025 14:13:54 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
   </ItemGroup>
 </Project>

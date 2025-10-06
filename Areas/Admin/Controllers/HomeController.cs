@@ -13,16 +13,20 @@ public class HomeController(ApplicationDbContext db) : Controller
 {
     public async Task<IActionResult> Index()
     {
-        var q = db.ServiceRequests.AsNoTracking().OrderByDescending(x => x.CreatedAt);
+        var items = await db.ServiceRequests
+            .AsNoTracking()
+            .Include(x => x.Notes)
+            .OrderByDescending(x => x.CreatedAt)
+            .ToListAsync();
 
         var vm = new HomeIndexViewModel
         {
-            YeniTalep = await q.Where(x => x.Status == ServiceStatus.YeniTalep).ToListAsync(),
-            TeklifIletildi = await q.Where(x => x.Status == ServiceStatus.TeklifIletildi).ToListAsync(),
-            ServisAsamasi = await q.Where(x => x.Status == ServiceStatus.ServisAsamasi).ToListAsync(),
-            TeklifReddedildi = await q.Where(x => x.Status == ServiceStatus.TeklifReddedildi).ToListAsync(),
-            Tamamlandi = await q.Where(x => x.Status == ServiceStatus.Tamamlandi).ToListAsync(),
-            FaturaEdildi = await q.Where(x => x.Status == ServiceStatus.FaturaEdildi).ToListAsync(),
+            YeniTalep = items.Where(x => x.Status == ServiceStatus.YeniTalep).ToList(),
+            TeklifIletildi = items.Where(x => x.Status == ServiceStatus.TeklifIletildi).ToList(),
+            ServisAsamasi = items.Where(x => x.Status == ServiceStatus.ServisAsamasi).ToList(),
+            TeklifReddedildi = items.Where(x => x.Status == ServiceStatus.TeklifReddedildi).ToList(),
+            Tamamlandi = items.Where(x => x.Status == ServiceStatus.Tamamlandi).ToList(),
+            FaturaEdildi = items.Where(x => x.Status == ServiceStatus.FaturaEdildi).ToList(),
         };
 
         return View(vm);
@@ -36,7 +40,8 @@ public class HomeController(ApplicationDbContext db) : Controller
 
         if (s == null) return NotFound();
 
-        var vm = new ServiceRequestAdminEditVM {
+        var vm = new ServiceRequestAdminEditVM
+        {
             Id = s.Id,
             Status = s.Status,
             Title = s.Title,
@@ -58,5 +63,53 @@ public class HomeController(ApplicationDbContext db) : Controller
 
         return Json(vm); // camelCase / PascalCase farkını JS tarafı tolere ediyor
     }
+    [HttpGet]
+public async Task<IActionResult> DetailsData(int id)
+{
+    var s = await db.ServiceRequests
+        .AsNoTracking()
+        .Include(x => x.Notes)
+        .SingleOrDefaultAsync(x => x.Id == id);
+
+    if (s == null) return NotFound();
+
+    // Son düzenlenme: UpdatedAt varsa onu, yoksa en yeni not, o da yoksa CreatedAt
+    DateTime? lastNote = s.Notes?.OrderByDescending(n => n.CreatedAt).Select(n => (DateTime?)n.CreatedAt).FirstOrDefault();
+    DateTime lastModified = s.UpdatedAt ?? lastNote ?? s.CreatedAt;
+
+    string statusText = s.Status switch
+    {
+        ServiceStatus.YeniTalep        => "Yeni Talep",
+        ServiceStatus.TeklifIletildi   => "Teklif İletildi",
+        ServiceStatus.ServisAsamasi    => "Servis Aşaması",
+        ServiceStatus.TeklifReddedildi => "Teklif Reddedildi",
+        ServiceStatus.Tamamlandi       => "Tamamlandı",
+        ServiceStatus.FaturaEdildi     => "Fatura Edildi",
+        _ => s.Status.ToString()
+    };
+
+    return Json(new {
+        id = s.Id,
+        companyName   = s.CompanyName,
+        title         = s.Title,
+        status        = (int)s.Status,
+        statusText,
+        requesterName = $"{(s.FirstName ?? "").Trim()} {(s.LastName ?? "").Trim()}".Trim(),
+        phone         = s.Phone,
+        email         = s.Email,
+        trackingNo    = s.TrackingNo,
+        robotModel    = s.RobotModel,
+        robotSerial   = s.RobotSerial,
+        lastModifiedUtc = lastModified,  // ISO gelir; JS’de locale formatlayacağız
+        notes = (s.Notes ?? [])
+            .OrderByDescending(n => n.CreatedAt)
+            .Select(n => new {
+                createdAt = n.CreatedAt,
+                createdBy = n.CreatedBy,
+                text      = n.Text ?? ""
+            })
+            .ToList()
+    });
+}
     
 }

@@ -121,6 +121,7 @@ namespace RobentexService.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CompanyName")
+                        .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
@@ -132,10 +133,12 @@ namespace RobentexService.Migrations
                         .HasColumnType("nvarchar(80)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("FaultDescription")
+                        .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
@@ -150,6 +153,7 @@ namespace RobentexService.Migrations
                         .HasColumnType("nvarchar(80)");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
@@ -158,10 +162,12 @@ namespace RobentexService.Migrations
                         .HasColumnType("nvarchar(80)");
 
                     b.Property<string>("RobotModel")
+                        .IsRequired()
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
                     b.Property<string>("RobotSerial")
+                        .IsRequired()
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
