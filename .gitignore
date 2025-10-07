@@ -1,116 +1,14 @@
-############################
-# Build çıktıları
-############################
-[Bb]in/
-[Oo]bj/
-[Bb]uild/
-**/Debug/
-**/Release/
-artifacts/
-TestResults/
+bin/
+obj/
+Debug/
+Release/
+wwwroot/appsettings.json
 
-############################
-# IDE / Editör dosyaları
-############################
-# Visual Studio
+# IDE/Editor dosyaları
 .vs/
-*.suo
+.vscode/
+
 *.user
-*.userosscache
-*.sln.docstates
-
-# Rider / JetBrains
-.idea/
-*.sln.iml
-_ReSharper*/
-*.[Rr]e[Ss]harper
-*.DotSettings.user
-
-# VS Code (paylaşmak istediklerinizi altta izinli bırakıyoruz)
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-############################
-# ASP.NET Core / Konfig
-############################
-# Yerel/development ayarları ve gizliler
-appsettings.*.Development.json
-appsettings.*.Local.json
-secrets.json
-
-# Sertifikalar / anahtarlar
-*.pfx
-*.p12
-*.cer
-*.key
-
-############################
-# NuGet / Paketler
-############################
-# SDK-style projelerde paketler global cache’te; klasör oluşursa ignore et
-packages/
-*.nupkg
-*.snupkg
-.nuget/
-project.lock.json
-
-############################
-# Yayın / Derleme çıktıları
-############################
-**/publish/
-**/dist/
-
-############################
-# Loglar / Geçici dosyalar
-############################
-logs/
-*.log
-*.nlog
-*.tmp
-*.temp
-*~
-~$*
-Thumbs.db
-.DS_Store
-
-############################
-# Veritabanı dosyaları (lokalde oluşanlar)
-############################
-*.mdf
-*.ldf
-*.sqlite
-*.sqlite3
-
-############################
-# Kod kapsamı / analiz
-############################
-*.coverage
-*.coveragexml
-.opencover.xml
-coverage.*
-
-############################
-# Web/Frontend (opsiyonel)
-############################
-node_modules/
-npm-debug.log*
-# Eğer üretim derlemesi oluşturuyorsanız:
-wwwroot/lib/
-wwwroot/dist/
-wwwroot/**/bundle*.js
-wwwroot/**/bundle*.css
-
-############################
-# Azure / Publish profilleri
-############################
-**/Properties/PublishProfiles/*.pubxml.user
-# (İsterseniz .pubxml’leri de ignore edebilirsiniz)
-# **/Properties/PublishProfiles/*.pubxml
-
-############################
-# Docker (opsiyonel)
-############################
-docker-compose.override.yml
+*.suo
+.vscode/launch.json
+appsettings.json
