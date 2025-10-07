@@ -61,18 +61,7 @@ public sealed class CreateDto
     public string? FaultDescription { get; set; }
     public string? NewNote { get; set; }
 }
-public static class TrTime
-{
-    private static readonly string TzId =
-        RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? "Turkey Standard Time"        // Windows
-            : "Europe/Istanbul";            // Linux/macOS
 
-    private static readonly TimeZoneInfo Tz = TimeZoneInfo.FindSystemTimeZoneById(TzId);
-
-    public static DateTime Now => TimeZoneInfo.ConvertTimeFromUtc(TrTime.Now, Tz);
-    public static DateTimeOffset NowOffset => TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, Tz);
-}
 [HttpPost]
 [ValidateAntiForgeryToken]
 public async Task<IActionResult> Create(CreateDto dto)
@@ -102,8 +91,8 @@ public async Task<IActionResult> Create(CreateDto dto)
         TrackingNo = dto.TrackingNo?.Trim(),
         Status = dto.Status,
         FaultDescription = dto.FaultDescription?.Trim(),
-        CreatedAt = TrTime.Now,
-        UpdatedAt = TrTime.Now    // sende alanın adı UpdatedAt
+        CreatedAt = DateTime.UtcNow.AddHours(3),
+        UpdatedAt = DateTime.UtcNow.AddHours(3)    // sende alanın adı UpdatedAt
     };
 
     if (!string.IsNullOrWhiteSpace(dto.NewNote))
@@ -111,7 +100,7 @@ public async Task<IActionResult> Create(CreateDto dto)
         entity.Notes = new List<ServiceRequestNote>{
             new ServiceRequestNote{
                 Text = dto.NewNote!.Trim(),
-                CreatedAt = TrTime.Now,
+                CreatedAt = DateTime.UtcNow.AddHours(3),
                 CreatedBy = User.Identity?.Name ?? "admin"
             }
         };
@@ -135,7 +124,7 @@ public async Task<IActionResult> Create(CreateDto dto)
         s.CustomerOrderNo  = CustomerOrderNo;
         s.RobentexOrderNo  = RobentexOrderNo;
         s.Status           = Status;
-        s.UpdatedAt        = TrTime.Now;
+        s.UpdatedAt        = DateTime.UtcNow.AddHours(3);
 
         if (!string.IsNullOrWhiteSpace(NewNote))
         {
@@ -143,7 +132,7 @@ public async Task<IActionResult> Create(CreateDto dto)
                 ServiceRequestId = s.Id,
                 Text      = NewNote.Trim(),
                 CreatedBy = User.Identity?.Name ?? "admin",
-                CreatedAt = TrTime.Now
+                CreatedAt = DateTime.UtcNow.AddHours(3)
             });
         }
 

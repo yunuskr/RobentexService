@@ -19,6 +19,7 @@ builder.Services
         o.Cookie.Name = "RobentexAdminAuth";
         o.SlidingExpiration = true;
         o.ExpireTimeSpan = TimeSpan.FromDays(7);
+        o.ReturnUrlParameter = "returnUrl";
     });
 
 var app = builder.Build();

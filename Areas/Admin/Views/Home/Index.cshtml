@@ -2,13 +2,7 @@
 @using RobentexService.Models
 
 @functions{
-    // Kart başlığı: boşsa "Firma + Servis Talebi"
-    private static string CardTitle(ServiceRequest s) =>
-        string.IsNullOrWhiteSpace(s.Title)
-            ? $"{(s.CompanyName ?? "").Trim()} Servis Talebi".Trim()
-            : s.Title!;
-
-    // Durum -> metin
+    // Durum -> metin (gerekirse)
     private static string StatusLabel(ServiceStatus s) => s switch{
         ServiceStatus.YeniTalep        => "Yeni Talep",
         ServiceStatus.TeklifIletildi   => "Teklif İletildi",
@@ -18,47 +12,14 @@
         ServiceStatus.FaturaEdildi     => "Fatura Edildi",
         _ => s.ToString()
     };
-
-    // Durum -> renk sınıfı
-    private static string StatusPillClass(ServiceStatus s) => s switch{
-        ServiceStatus.YeniTalep        => "pill pill-green",
-        ServiceStatus.TeklifIletildi   => "pill pill-amber",
-        ServiceStatus.ServisAsamasi    => "pill pill-cyan",
-        ServiceStatus.TeklifReddedildi => "pill pill-red",
-        ServiceStatus.Tamamlandi       => "pill pill-gray",
-        ServiceStatus.FaturaEdildi     => "pill pill-purple",
-        _ => "pill"
-    };
-
-    // (opsiyonel) Son not kısa özet
-    private static string LastNote(ServiceRequest s, int max = 80){
-        var t = s.Notes?.OrderByDescending(n=>n.CreatedAt).FirstOrDefault()?.Text ?? "";
-        if (string.IsNullOrWhiteSpace(t)) return "";
-        t = t.Trim();
-        return t.Length > max ? t.Substring(0, max-1) + "…" : t;
-    }
 }
 
 @{
     ViewData["Title"] = "Robentex Servis Takip Paneli";
     Layout = "/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 
-    var editDataUrl = Url.Action("EditData", "Home", new { area = "Admin" });            // GET JSON
-    var saveUrl     = Url.Action("Save",     "ServiceRequests", new { area = "Admin" }); // POST kaydet
+    var editDataUrl = Url.Action("EditData", "Home", new { area = "Admin" }); // GET JSON
     var now         = DateTime.Now.ToString("HH:mm | dd.MM.yyyy");
-
-    // Tüm kayıtları tek listede topla (görsellerdeki gibi tablo görünümü)
-    var all = Enumerable.Empty<ServiceRequest>();
-    if(Model != null){
-        all =
-            (Model.YeniTalep          ?? Enumerable.Empty<ServiceRequest>())
-            .Concat(Model.TeklifIletildi ?? Enumerable.Empty<ServiceRequest>())
-            .Concat(Model.ServisAsamasi  ?? Enumerable.Empty<ServiceRequest>())
-            .Concat(Model.TeklifReddedildi ?? Enumerable.Empty<ServiceRequest>())
-            .Concat(Model.Tamamlandi    ?? Enumerable.Empty<ServiceRequest>())
-            .Concat(Model.FaturaEdildi  ?? Enumerable.Empty<ServiceRequest>())
-            .OrderByDescending(x => x.CreatedAt);
-    }
 }
 
 <div class="kb-wrap">
@@ -78,96 +39,213 @@
     </div>
   </header>
 
-  <!-- Liste Paneli -->
-  <section class="list-panel">
-    <div class="list-head">
-      <div>Başlık</div>
-      <div>Sipariş No</div>
-      <div class="sort" role="button" tabindex="0" aria-label="Duruma göre sırala">Durum <span class="caret">▾</span></div>
-      <div>Not</div>
-      <div class="right">
-        <button class="create-btn open-create" type="button" aria-label="Yeni talep">
-          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          <span class="lbl">Yeni Talep</span>
-        </button>
-      </div>
-    </div>
+  <!-- === KANBAN BOARD === -->
+  <section class="kb-board">
 
-    <!-- Filtre Barı -->
-    <div class="list-filters">
-      <div class="f-group">
-        <label for="statusFilter">Durum</label>
-        <select id="statusFilter">
-          <option value="">Tümü</option>
-          <option value="0">Yeni Talep</option>
-          <option value="1">Teklif İletildi</option>
-          <option value="2">Servis Aşaması</option>
-          <option value="3">Teklif Reddedildi</option>
-          <option value="4">Tamamlandı</option>
-          <option value="5">Fatura Edildi</option>
-        </select>
+    <!-- Sütun: Yeni Talep -->
+    <div class="kb-col">
+      <div class="kb-col-head head-green">
+        <div class="pill"><span class="dot"></span>Yeni Talep</div>
+        <button class="mini-create open-create" title="Yeni talep" aria-label="Yeni talep">+</button>
       </div>
+      <div class="kb-col-body">
+        @foreach (var it in (Model?.YeniTalep ?? Enumerable.Empty<ServiceRequest>())){
+          <article class="kb-card @(it.Status == ServiceStatus.TeklifReddedildi ? "rejected" : "")"
+         data-id="@it.Id" data-status="@((int)it.Status)">
+            <div class="meta">Oluşturma Tarihi: @it.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy / HH:mm")</div>
 
-      <div class="f-group">
-        <label for="dateFrom">Tarih (Başlangıç)</label>
-        <input id="dateFrom" type="date" />
-      </div>
-
-      <div class="f-group">
-        <label for="dateTo">Tarih (Bitiş)</label>
-        <input id="dateTo" type="date" />
-      </div>
-
-      <div class="f-actions">
-        <button id="resetFilters" type="button" class="btn btn-dark" title="Filtreleri temizle">Sıfırla</button>
-      </div>
-    </div>
-
-    <div class="list-body">
-      @if (all.Any())
-      {
-        foreach (var item in all)
-        {
-          <div class="list-row"
-               data-id="@item.Id"
-               data-status="@((int)item.Status)"
-               data-created="@item.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd")"
-               data-title="@CardTitle(item)"
-               data-note="@(LastNote(item))">
-            <!-- Başlık -->
-            <div class="cell title">
-              <div class="meta">Oluşturma Tarihi: @item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy / HH:mm")</div>
-              <div class="ttl">@CardTitle(item)</div>
+            <!-- Firma (tek satır, ellipsis) -->
+            <div class="firm ellipsis" title="@(it.CompanyName ?? "")">
+              @(string.IsNullOrWhiteSpace(it.CompanyName) ? "—" : it.CompanyName)
             </div>
 
-            <!-- Sipariş No -->
-            <div class="cell ord">#@item.Id</div>
-
-            <!-- Durum -->
-            <div class="cell status">
-              <span class="@StatusPillClass(item.Status)">
-                <span class="dot-mini"></span>@StatusLabel(item.Status)
-              </span>
+            <!-- Başlık (tek satır, ellipsis) -->
+            <div class="ttl ellipsis" title="@(it.Title ?? "")">
+              @(string.IsNullOrWhiteSpace(it.Title) ? "—" : it.Title)
             </div>
 
-            <!-- Not -->
-            <div class="cell note">@(LastNote(item) is string n && n.Length>0 ? n : "—")</div>
+            @{
+                  var displayNo =
+                      !string.IsNullOrWhiteSpace(it.TrackingNo)        ? it.TrackingNo :
+                      !string.IsNullOrWhiteSpace(it.RobentexOrderNo)   ? it.RobentexOrderNo :
+                      !string.IsNullOrWhiteSpace(it.CustomerOrderNo)   ? it.CustomerOrderNo :
+                                                                        it.Id.ToString();
+              }
+              <div class="id">#@displayNo</div>
 
-            <!-- Aksiyonlar -->
-            <div class="cell actions">
-              <button class="btn btn-dark open-edit" type="button" data-id="@item.Id" aria-label="Talep #@item.Id düzenle">Düzenle</button>
-              <button class="btn btn-ok open-details" type="button" data-id="@item.Id">Detay Gör</button>
+            <div class="actions">
+              <button class="btn btn-dark open-edit" type="button" data-id="@it.Id">Düzenle</button>
+              <button class="btn btn-ok open-details"  type="button" data-id="@it.Id">Detay Gör</button>
             </div>
-          </div>
+          </article>
         }
-      }
-      else
-      {
-        <div class="list-empty">Kayıt bulunamadı.</div>
-      }
+      </div>
     </div>
+
+    <!-- Sütun: Teklif İletildi -->
+    <div class="kb-col">
+      <div class="kb-col-head head-amber">
+        <div class="pill"><span class="dot"></span>Teklif İletildi</div>
+        <button class="mini-create open-create" title="Yeni talep">+</button>
+      </div>
+      <div class="kb-col-body">
+        @foreach (var it in (Model?.TeklifIletildi ?? Enumerable.Empty<ServiceRequest>())){
+          <article class="kb-card @(it.Status == ServiceStatus.TeklifReddedildi ? "rejected" : "")"
+         data-id="@it.Id" data-status="@((int)it.Status)">
+            <div class="meta">Oluşturma Tarihi: @it.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy / HH:mm")</div>
+
+            <!-- Firma (tek satır, ellipsis) -->
+            <div class="firm ellipsis" title="@(it.CompanyName ?? "")">
+              @(string.IsNullOrWhiteSpace(it.CompanyName) ? "—" : it.CompanyName)
+            </div>
+
+            <!-- Başlık (tek satır, ellipsis) -->
+            <div class="ttl ellipsis" title="@(it.Title ?? "")">
+              @(string.IsNullOrWhiteSpace(it.Title) ? "—" : it.Title)
+            </div>
+
+            @{
+                  var displayNo =
+                      !string.IsNullOrWhiteSpace(it.TrackingNo)        ? it.TrackingNo :
+                      !string.IsNullOrWhiteSpace(it.RobentexOrderNo)   ? it.RobentexOrderNo :
+                      !string.IsNullOrWhiteSpace(it.CustomerOrderNo)   ? it.CustomerOrderNo :
+                                                                        it.Id.ToString();
+              }
+              <div class="id">#@displayNo</div>
+
+            <div class="actions">
+              <button class="btn btn-dark open-edit" type="button" data-id="@it.Id">Düzenle</button>
+              <button class="btn btn-ok open-details"  type="button" data-id="@it.Id">Detay Gör</button>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+
+    <!-- Sütun: Servis Aşaması -->
+    <div class="kb-col">
+      <div class="kb-col-head head-cyan">
+        <div class="pill"><span class="dot"></span>Servis Aşaması</div>
+        <button class="mini-create open-create" title="Yeni talep">+</button>
+      </div>
+      <div class="kb-col-body">
+        @foreach (var it in (Model?.ServisAsamasi ?? Enumerable.Empty<ServiceRequest>())){
+          <article class="kb-card @(it.Status == ServiceStatus.TeklifReddedildi ? "rejected" : "")"
+            data-id="@it.Id" data-status="@((int)it.Status)">
+            <div class="meta">Oluşturma Tarihi: @it.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy / HH:mm")</div>
+
+            <!-- Firma (tek satır, ellipsis) -->
+            <div class="firm ellipsis" title="@(it.CompanyName ?? "")">
+              @(string.IsNullOrWhiteSpace(it.CompanyName) ? "—" : it.CompanyName)
+            </div>
+
+            <!-- Başlık (tek satır, ellipsis) -->
+            <div class="ttl ellipsis" title="@(it.Title ?? "")">
+              @(string.IsNullOrWhiteSpace(it.Title) ? "—" : it.Title)
+            </div>
+
+            @{
+                  var displayNo =
+                      !string.IsNullOrWhiteSpace(it.TrackingNo)        ? it.TrackingNo :
+                      !string.IsNullOrWhiteSpace(it.RobentexOrderNo)   ? it.RobentexOrderNo :
+                      !string.IsNullOrWhiteSpace(it.CustomerOrderNo)   ? it.CustomerOrderNo :
+                                                                        it.Id.ToString();
+              }
+              <div class="id">#@displayNo</div>
+
+            <div class="actions">
+              <button class="btn btn-dark open-edit" type="button" data-id="@it.Id">Düzenle</button>
+              <button class="btn btn-ok open-details"  type="button" data-id="@it.Id">Detay Gör</button>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+
+    <!-- Sütun: Tamamlandı  (Teklif Reddedildi kartları da burada, KIRMIZI arka planla) -->
+    <div class="kb-col">
+      <div class="kb-col-head head-gray">
+        <div class="pill"><span class="dot"></span>Tamamlandı</div>
+        <button class="mini-create open-create" title="Yeni talep">+</button>
+      </div>
+      <div class="kb-col-body">
+        @{
+            var completed = (Model?.Tamamlandi ?? Enumerable.Empty<ServiceRequest>())
+                            .Concat(Model?.TeklifReddedildi ?? Enumerable.Empty<ServiceRequest>());
+        }
+        @foreach (var it in completed){
+          var rejected = it.Status == ServiceStatus.TeklifReddedildi;
+          <article class="kb-card @(rejected ? "rejected" : "")" data-id="@it.Id" data-status="@((int)it.Status)">
+            <div class="meta">Oluşturma Tarihi: @it.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy / HH:mm")</div>
+
+            <!-- Firma (tek satır, ellipsis) -->
+            <div class="firm ellipsis" title="@(it.CompanyName ?? "")">
+              @(string.IsNullOrWhiteSpace(it.CompanyName) ? "—" : it.CompanyName)
+            </div>
+
+            <!-- Başlık (tek satır, ellipsis) -->
+            <div class="ttl ellipsis" title="@(it.Title ?? "")">
+              @(string.IsNullOrWhiteSpace(it.Title) ? "—" : it.Title)
+            </div>
+
+            @{
+                  var displayNo =
+                      !string.IsNullOrWhiteSpace(it.TrackingNo)        ? it.TrackingNo :
+                      !string.IsNullOrWhiteSpace(it.RobentexOrderNo)   ? it.RobentexOrderNo :
+                      !string.IsNullOrWhiteSpace(it.CustomerOrderNo)   ? it.CustomerOrderNo :
+                                                                        it.Id.ToString();
+              }
+              <div class="id">#@displayNo</div>
+
+            <div class="actions">
+              <button class="btn btn-dark open-edit" type="button" data-id="@it.Id">Düzenle</button>
+              <button class="btn btn-ok open-details"  type="button" data-id="@it.Id">Detay Gör</button>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+
+    <!-- Sütun: Fatura Edildi -->
+    <div class="kb-col">
+      <div class="kb-col-head head-purple">
+        <div class="pill"><span class="dot"></span>Fatura Edildi</div>
+        <button class="mini-create open-create" title="Yeni talep">+</button>
+      </div>
+      <div class="kb-col-body">
+        @foreach (var it in (Model?.FaturaEdildi ?? Enumerable.Empty<ServiceRequest>())){
+          <article class="kb-card @(it.Status == ServiceStatus.TeklifReddedildi ? "rejected" : "")"
+         data-id="@it.Id" data-status="@((int)it.Status)">
+            <div class="meta">Oluşturma Tarihi: @it.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy / HH:mm")</div>
+
+            <!-- Firma (tek satır, ellipsis) -->
+            <div class="firm ellipsis" title="@(it.CompanyName ?? "")">
+              @(string.IsNullOrWhiteSpace(it.CompanyName) ? "—" : it.CompanyName)
+            </div>
+
+            <!-- Başlık (tek satır, ellipsis) -->
+            <div class="ttl ellipsis" title="@(it.Title ?? "")">
+              @(string.IsNullOrWhiteSpace(it.Title) ? "—" : it.Title)
+            </div>
+
+            @{
+                  var displayNo =
+                      !string.IsNullOrWhiteSpace(it.TrackingNo)        ? it.TrackingNo :
+                      !string.IsNullOrWhiteSpace(it.RobentexOrderNo)   ? it.RobentexOrderNo :
+                      !string.IsNullOrWhiteSpace(it.CustomerOrderNo)   ? it.CustomerOrderNo :
+                                                                        it.Id.ToString();
+              }
+              <div class="id">#@displayNo</div>
+
+            <div class="actions">
+              <button class="btn btn-dark open-edit" type="button" data-id="@it.Id">Düzenle</button>
+              <button class="btn btn-ok open-details"  type="button" data-id="@it.Id">Detay Gör</button>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+
   </section>
 
   <!-- Alt logo -->
@@ -176,13 +254,12 @@
   </footer>
 </div>
 
-@* === Modal TEMPLATE partial === *@
+@* === Modal TEMPLATE partial’lar === *@
 @await Html.PartialAsync(
   "~/Views/Shared/Modals/_EditServiceRequestModal.cshtml",
   new RobentexService.Models.ViewModels.Modals.EditServiceRequestModalVm{
-      SaveUrl = saveUrl!
+      SaveUrl = Url.Action("Save", "ServiceRequests", new { area = "Admin" })!
   }
-  
 )
 @await Html.PartialAsync("~/Views/Shared/Modals/_ServiceRequestDetailsModal.cshtml")
 @await Html.PartialAsync(
@@ -191,44 +268,32 @@
       CreateUrl = Url.Action("Create", "ServiceRequests", new { area = "Admin" })!
   }
 )
+
 @section Styles{
-  <!-- Modal ortak stiller -->
   <link rel="stylesheet" href="~/css/rtx-modal.css" asp-append-version="true" />
   <style>
   :root{
-    --bg:#1f1f1f; --panel:#2a2a2a; --panel-2:#3a3a3a; --text:#eaeaea; --muted:#a9b0b7;
+    --bg:#1f1f1f; --panel:#2a2a2a; --text:#eaeaea; --muted:#a9b0b7;
     --green:#47c266; --amber:#f2c039; --cyan:#3ac2e3; --gray:#767a81; --purple:#a576d8; --red:#d94a4a;
-    --ok:#3cd25b; --dark:#111; --radius:14px;
   }
 
   /* Genel */
   html, body{ height:100%; }
   body{ background:#1b1b1b; color:var(--text); }
-
-  /* → Sayfayı daha geniş kullan + yan/alt boşlukları azalt */
-  .kb-wrap{
-    width:100%;
-    max-width: 1500px;
-    margin:0 auto;
-    padding:8px 10px 10px;
-  }
+  .kb-wrap{ width:100%; max-width:1600px; margin:0 auto; padding:8px 10px 10px; }
 
   /* Üst bar */
   .kb-header{
     display:grid; grid-template-columns:1fr auto 1fr; grid-template-rows:auto auto;
     align-items:center; gap:8px 12px; margin-bottom:12px;
   }
-  .kb-header h1{ grid-column:2; grid-row:1; margin:0; font-weight:700; letter-spacing:.2px; }
+  .kb-header h1{ grid-column:2; grid-row:1; margin:0; font-weight:700; }
   .kb-header .live{ grid-column:1; grid-row:1; display:flex; align-items:center; gap:8px; }
   .kb-header .dot{ width:10px; height:10px; border-radius:50%; background:#ff3b30; box-shadow:0 0 0 3px rgba(255,59,48,.15); }
   .kb-header .txt{ font-weight:600; color:#ff6961; }
   .kb-header .sub{ color:var(--muted); font-size:.9rem; }
-
-  /* Arama */
   .kb-header .search{
-    grid-column:1/4; grid-row:2; position:relative;
-    width:min(1200px, 100%);
-    justify-self:center;
+    grid-column:1/4; grid-row:2; position:relative; width:min(1200px, 100%); justify-self:center;
   }
   .kb-header .search input{
     width:100%; height:48px; background:#555; border:1px solid #666; color:var(--text);
@@ -236,222 +301,143 @@
   }
   .kb-header .search .mag{ position:absolute; left:12px; top:50%; transform:translateY(-50%); opacity:.85; }
 
-  /* ===== Liste Panel ===== */
-  .list-panel{
-    background:#2f2f2f; border:1px solid #3f3f3f; border-radius:14px;
-    box-shadow:0 4px 14px rgba(0,0,0,.22) inset;
-    overflow:hidden;
-    width:100%;
-    max-width: 1500px;
-    margin: 0 auto 10px;
-  }
-  .create-btn{
-  display:inline-flex; align-items:center; gap:10px;
-  background: var(--amber); color:#111;
-  border:0; border-radius:999px;
-  padding:.55rem 1rem; font-weight:800;
-  box-shadow: 0 6px 18px rgba(242,192,57,.25);
-  transition: transform .08s ease, filter .15s ease, box-shadow .15s ease;
-  }
-  .create-btn .ico{ width:18px; height:18px; display:block; }
-  .create-btn:hover{ filter:brightness(1.06); box-shadow:0 8px 22px rgba(242,192,57,.32); }
-  .create-btn:active{ transform: translateY(1px); }
+  /* === KANBAN === */
+  .kb-board{
+  display:flex;
+  gap:14px;
+  padding:10px;
 
-  /* Dar ekranda sadece ikon göster */
-  @@media (max-width: 900px){
-    .create-btn{ padding:.48rem .6rem; border-radius:12px; }
-    .create-btn .lbl{ display:none; }
-    .create-btn .ico{ width:20px; height:20px; }
-  }
+  /* arka plan & çerçeve kalktı */
+  background: transparent;
+  border: none;
 
-/* Hücre hizası için (opsiyonel) */
-.list-head .right{ display:flex; justify-content:flex-end; }
-  /* header */
-  .list-head{
-    display:grid;
-    grid-template-columns: 2fr 150px 220px 1.2fr 200px;
-    gap:10px; align-items:center;
-    background:#5a5a5a; color:#fff; padding:8px 12px;
-  }
-  .list-head .sort{ display:flex; align-items:center; gap:6px; cursor:pointer; }
-  .list-head .caret{ opacity:.8; }
+  /* yatay scroll kapalı, yükseklik sabit */
+  overflow-x: hidden;
+  height: calc(100vh - 200px);
+  align-items: stretch;
+}
+  .kb-board::-webkit-scrollbar{ height:10px; }
+  .kb-board::-webkit-scrollbar-thumb{ background:#555; border-radius:10px; border:2px solid #2f2f2f; }
 
-  /* filtre barı */
-  .list-filters{
-    display:flex; gap:12px; align-items:end; padding:10px 12px; background:#383838; border-top:1px solid #444; border-bottom:1px solid #444;
+  .kb-col{
+  flex: 1 1 0;      /* tüm kolonlar eşit genişlesin */
+  min-width: 0;     /* içerik taşmalarında yatay scroll oluşmasın */
+  background:#1f1f1f; border:1px solid #3a3a3a; border-radius:12px;
+  display:flex; flex-direction:column; overflow:hidden;
+}
+  .kb-col-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 10px; border-bottom:1px solid #3a3a3a; background:#272727;
+}
+  .kb-col-head .pill{
+    display:inline-flex; align-items:center; gap:8px; font-weight:800; color:#111;
+    padding:.35rem .7rem; border-radius:999px;
   }
-  .list-filters .f-group{ display:flex; flex-direction:column; gap:6px; }
-  .list-filters label{ color:#d0d6dc; font-size:.9rem; }
-  .list-filters select, .list-filters input[type="date"]{
-    background:#2c2c2c; border:1px solid #3a3a3a; color:#eaeaea; border-radius:10px; padding:.45rem .6rem; min-height:36px;
-  }
-  .list-filters .f-actions{ margin-left:auto; }
+  .kb-col-head .dot{ width:8px; height:8px; border-radius:50%; background:#0e0e0e; opacity:.35; }
+  .head-green  .pill{ background:var(--green); }
+  .head-amber  .pill{ background:var(--amber); }
+  .head-cyan   .pill{ background:var(--cyan); }
+  .head-gray   .pill{ background:var(--gray); color:#fff; }
+  .head-purple .pill{ background:var(--purple); }
 
-  /* gövde */
-  .list-body{
-    max-height: calc(100vh - 300px);
-    overflow:auto;
-    padding:8px;
+  .mini-create{
+    width:26px; height:26px; border-radius:8px; border:1px solid #3b3b3b;
+    background:#2d2d2d; color:#ddd; font-weight:900; line-height:1; cursor:pointer;
   }
 
-  .list-row{
-    display:grid;
-    grid-template-columns: 2fr 150px 220px 1.2fr 200px;
-    gap:10px; align-items:center;
-    background:#1f1f1f; border:1px solid #3a3a3a; border-radius:10px;
-    padding:10px 12px; margin-bottom:8px;
+  .kb-col-body{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* spacing */
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;          /* kartlar arası mesafe (isteğe göre 14–16 yapabilirsin) */
+}
+  .kb-col-body::-webkit-scrollbar{ width:10px; }
+  .kb-col-body::-webkit-scrollbar-thumb{ background:#555; border-radius:10px; border:2px solid #2f2f2f; }
+
+  /* Kart */
+  .kb-card{
+    background:#2a2a2a; border:1px solid #3a3a3a; border-radius:10px;
+    padding:8px 10px;
   }
-  .list-body .list-row:last-child{ margin-bottom:4px; }
+  /* Reddedilen kart vurgu (kırmızı arka plan) */
+  .kb-card.rejected{
+    background:#5a2020;
+    border-color:#7f2c2c;
+  }
 
-  .list-row .meta{ color:#b6bcc3; font-size:.82rem; margin-bottom:3px; }
-  .list-row .ttl{ font-weight:700; }
-  .cell.ord{ color:#cfcfcf; }
-  .cell.note{ color:#d9d9d9; opacity:.9; }
-  .cell.actions{ display:flex; gap:8px; justify-content:flex-end; }
-
-  /* pill */
-  .pill{ display:inline-flex; align-items:center; gap:8px; font-weight:700; color:#111;
-    padding:.35rem .7rem; border-radius:999px; }
-  .pill-green{ background:var(--green); }
-  .pill-amber{ background:var(--amber); }
-  .pill-cyan{ background:var(--cyan); }
-  .pill-red{ background:var(--red); color:#fff; }
-  .pill-gray{ background:var(--gray); color:#fff; }
-  .pill-purple{ background:var(--purple); }
-  .dot-mini{ width:8px; height:8px; border-radius:50%; background:#0e0e0e; opacity:.35; }
-
-  .list-empty{ padding:14px; color:#a9b0b7; }
-
-  /* Buttons */
-  .btn{ border:none; border-radius:999px; padding:.45rem .9rem; font-weight:800; cursor:pointer; }
+  .kb-card .meta{ color:#b6bcc3; font-size:.82rem; margin-bottom:4px; }
+  .kb-card .ttl{ font-weight:800; margin:0 0 4px 0; font-size:1rem; color:#eaeaea; }
+  .kb-card .id{ font-size:.82rem; color:#cfcfcf; margin-bottom:6px; }
+  .kb-card .actions{ display:flex; gap:8px; }
+  .btn{ border:none; border-radius:999px; padding:.35rem .8rem; font-weight:800; cursor:pointer; }
   .btn-dark{ background:#111; color:#fff; }
-  .btn-ok{ background:var(--ok); color:#0e0e0e; }
-  .icon-btn{ width:28px; height:28px; border-radius:8px; border:1px solid #3b3b3b; background:#2d2d2d; color:#ddd; cursor:pointer; }
+  .btn-ok{ background:#3cd25b; color:#0e0e0e; }
 
-  /* Alt logo */
   .kb-footer{ display:flex; justify-content:center; align-items:center; padding:8px 0 2px; opacity:.9; }
   .kb-footer img{ height:24px; }
 
-  /* Scrollbar */
-  .list-body::-webkit-scrollbar{ width:10px; }
-  .list-body::-webkit-scrollbar-thumb{ background:#555; border-radius:10px; border:2px solid #2f2f2f; }
+  @@media (max-width: 900px){
+    .kb-board{ height: calc(100vh - 180px); }
+  }
 
-  /* responsive  */
-  @@media (max-width:1200px){
-    .list-head, .list-row{ grid-template-columns: 1.5fr 120px 190px 1fr 180px; }
-  }
-  @@media (max-width:900px){
-    .list-head, .list-row{ grid-template-columns: 1.3fr 110px 170px 1fr 160px; }
-  }
+  /* Tek satır ellipsis */
+.ellipsis{
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Kart içi hiyerarşi */
+.kb-card .firm{
+  font-weight: 800;
+  color: #e6edf3;     /* biraz daha parlak */
+  margin: 2px 0 2px;
+  font-size: 1rem;
+}
+
+.kb-card .ttl{
+  font-weight: 600;
+  color: #c6cbd1;
+  margin: 0 0 6px 0;
+  font-size: .95rem;
+}
+
+.kb-card .id{
+  font-size: .82rem;
+  color:#cfcfcf;
+  margin-bottom: 6px;
+}
   </style>
 }
 
 @section Scripts{
-  <!-- Modal kodu için endpoint değişkeni -->
   <script>
-    window.__RTX_EDIT_DATA_URL__ = '@editDataUrl';
-  </script>
-  <script src="~/js/create-modal.js" asp-append-version="true"></script>
-  <!-- Modal aç/kaydet JS (not listesi göstermiyor, sadece NewNote alanı) -->
-  <script src="~/js/edit-modal.js" asp-append-version="true"></script>
-
-  <!-- Filtreleme + Sıralama -->
-  <script>
-    // === Filtreleme ===
-    const els = {
-      search: document.getElementById('searchBox'),
-      status: document.getElementById('statusFilter'),
-      from:   document.getElementById('dateFrom'),
-      to:     document.getElementById('dateTo'),
-      reset:  document.getElementById('resetFilters'),
-      list:   document.querySelector('.list-body')
-    };
-
-    const getRows = () => Array.from(els.list.querySelectorAll('.list-row'));
-
-    function passText(r, q){
-      if(!q) return true;
-      q = q.toLowerCase().trim();
-      const title = (r.dataset.title || '').toLowerCase();
-      const note  = (r.dataset.note  || '').toLowerCase();
-      const ord   = (r.querySelector('.cell.ord')?.textContent || '').toLowerCase();
-      return title.includes(q) || note.includes(q) || ord.includes(q);
-    }
-    function passStatus(r, st){
-      if(st === '' || st == null) return true;
-      return r.dataset.status === String(st);
-    }
-    function passDate(r, dFrom, dTo){
-      const d = r.dataset.created; // "yyyy-MM-dd"
-      if(!d) return true;
-      if(dFrom && d < dFrom) return false;
-      if(dTo   && d > dTo)   return false;
-      return true;
-    }
-
-    function applyFilters(){
-      const q   = els.search?.value || '';
-      const st  = els.status?.value ?? '';
-      const df  = els.from?.value || '';
-      const dt  = els.to?.value   || '';
-
-      getRows().forEach(r=>{
-        const show = passText(r,q) && passStatus(r,st) && passDate(r,df,dt);
-        r.style.display = show ? '' : 'none';
-      });
-    }
-
-    // eventler
-    els.search?.addEventListener('input', applyFilters);
-    els.status?.addEventListener('change', applyFilters);
-    els.from?.addEventListener('change', applyFilters);
-    els.to?.addEventListener('change', applyFilters);
-    els.reset?.addEventListener('click', ()=>{
-      if(els.search) els.search.value='';
-      if(els.status) els.status.value='';
-      if(els.from)   els.from.value='';
-      if(els.to)     els.to.value='';
-      applyFilters();
-    });
-
-    // === Sıralama (filtrelerle uyumlu) ===
-    let sortState = { key:'createdAt', dir:'desc' };
-    const parseRowDate = (r) => {
-      const s = r.dataset.created;
-      return s ? new Date(s + 'T00:00:00').getTime() : 0;
-    };
-
-    function sortRows(){
-      const arr = getRows();
-      const meta = arr.map(r=>{
-        const statusText = r.querySelector('.cell.status')?.innerText.trim() || '';
-        return { r, createdAt: parseRowDate(r), status: statusText };
-      });
-
-      meta.sort((a,b)=>{
-        const dir = sortState.dir === 'asc' ? 1 : -1;
-        const ka = a[sortState.key];
-        const kb = b[sortState.key];
-        return (ka>kb ? 1 : ka<kb ? -1 : 0) * dir;
-      });
-
-      meta.forEach(x=>els.list.appendChild(x.r));
-    }
-
-    document.querySelector('.list-head .sort')?.addEventListener('click', ()=>{
-      if (sortState.key === 'createdAt') sortState = { key:'status', dir:'asc' };
-      else if (sortState.key === 'status') sortState = { key:'status', dir: (sortState.dir==='asc'?'desc':'asc') };
-      else sortState = { key:'createdAt', dir:'desc' };
-      sortRows();
-    });
-
-    // İlk yüklemede
-    applyFilters();
-  </script>
-  <script>
+    // Modal endpointleri
     window.__RTX_EDIT_DATA_URL__    = '@editDataUrl';
     window.__RTX_DETAILS_DATA_URL__ = '@Url.Action("DetailsData","Home", new { area="Admin" })';
   </script>
+
   <script src="~/js/edit-modal.js" asp-append-version="true"></script>
   <script src="~/js/details-modal.js" asp-append-version="true"></script>
+  <script src="~/js/create-modal.js" asp-append-version="true"></script>
+
+  <!-- basit arama: kart başlığı / id içinde filtre -->
+  <script>
+    const q = document.getElementById('searchBox');
+    function applySearch(){
+      const term = (q?.value || '').toLowerCase();
+      document.querySelectorAll('.kb-card').forEach(card=>{
+        const title = card.querySelector('.ttl')?.textContent.toLowerCase() || '';
+        const id    = card.querySelector('.id')?.textContent.toLowerCase() || '';
+        card.style.display = (term==='' || title.includes(term) || id.includes(term)) ? '' : 'none';
+      });
+    }
+    q?.addEventListener('input', applySearch);
+  </script>
 }
