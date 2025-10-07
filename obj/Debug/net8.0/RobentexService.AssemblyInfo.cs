@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RobentexService")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+74a2a5bfaee5e9d5e66a48b3ecca44e6baf5efe2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+220dbc73c8377b03ccb44064a6dd40f6be29bbbb")]
 [assembly: System.Reflection.AssemblyProductAttribute("RobentexService")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RobentexService")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

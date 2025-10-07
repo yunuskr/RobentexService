@@ -99,5 +99,47 @@
 @@media (max-height: 640px){
   .details-grid .notes{ max-height: 180px; }
 }
+/* ====== SADECE MOBİL (≤820px) AYARLARI ====== */
+@@media (max-width: 820px){
 
+  /* Modal kutusu ekranı iyi kullansın, başlık/altlık sabit kalsın */
+  .rtx-modal{
+    width: 96vw;
+    max-height: 96vh;
+  }
+
+  /* İçerik: kalan alanı kaplasın ve kaydırılabilsin */
+  .rtx-modal-body.details-grid{
+    display: grid;                 /* varsa grid yapısını koru */
+    grid-template-columns: 1fr !important;  /* iki sütunu alt alta getir */
+    gap: 10px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;                /* mobilde gövde kaydırılabilir */
+    padding: 12px 14px;
+  }
+
+  /* Her grup blok arası biraz nefes */
+  .rtx-modal-body.details-grid .grp{
+    margin: 0;                     /* grid gap yeterli */
+  }
+
+  /* Notlar: mobilde daha yüksek bir alan ver, kendi içinde scroll */
+  .details-grid .row-notes{ grid-column: 1 / -1; min-height: 0; }
+  .details-grid .row-notes .notes{
+    max-height: 45vh;              /* mobilde rahat okuma */
+    overflow: auto;
+  }
+
+  /* iOS yakınlaştırma engeli: form kontrollerinde min 16px */
+  .rtx-modal-body.details-grid .inp{
+    font-size: 16px;
+  }
+
+  /* (Opsiyonel) mobil scrollbar görünümü */
+  .rtx-modal-body.details-grid::-webkit-scrollbar{ width: 10px; }
+  .rtx-modal-body.details-grid::-webkit-scrollbar-thumb{
+    background:#555; border-radius:10px; border:2px solid #2f2f2f;
+  }
+}
 </style>

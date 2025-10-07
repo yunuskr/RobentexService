@@ -413,7 +413,52 @@
   color:#cfcfcf;
   margin-bottom: 6px;
 }
+/* ==== MOBİL DÜZELTMELER ==== */
+@@media (max-width: 768px){
+  /* Board yatay kaydırılabilir olsun, sütunlar sıkışmasın */
+  .kb-board{
+    overflow-x: auto;          /* HORIZ SCROLL AÇ */
+    gap: 10px;
+    height: calc(100dvh - 180px); /* biraz daha yüksek */
+    padding: 8px;
+  }
+
+  /* Her sütun sabit/min genişlikte kalsın (daralmayı kapat) */
+  .kb-col{
+    flex: 0 0 300px;    /* ~300px genişlik */
+    min-width: 280px;   /* daha da küçük olmasın */
+    max-width: 320px;   /* çok büyümesin */
+  }
+
+  /* Sütun başlığı ve gövde padding’lerini küçült */
+  .kb-col-head{ padding: 6px 8px; }
+  .kb-col-body{
+    padding: 8px;
+    gap: 10px;
+  }
+
+  /* Kart iç tipografi/padding biraz kompakt */
+  .kb-card{ padding: 8px; }
+  .kb-card .meta{ font-size: .8rem; }
+  .kb-card .firm{ font-size: .95rem; }
+  .kb-card .ttl{ font-size: .9rem; }
+
+  /* Üst bar tek kolon düzen */
+  .kb-header{
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 6px 10px;
+  }
+  .kb-header h1{ grid-column: 1; grid-row: 1; font-size: 1.05rem; }
+  .kb-header .live{ grid-column: 1; grid-row: 2; }
+  .kb-header .search{
+    grid-column: 1; grid-row: 3;
+    width: 100%;
+  }
+  .kb-header .search input{ height: 42px; }
+}
   </style>
+  
 }
 
 @section Scripts{

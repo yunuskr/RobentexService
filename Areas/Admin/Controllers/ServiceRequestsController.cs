@@ -32,7 +32,6 @@ public class ServiceRequestsController(ApplicationDbContext db, ILogger<ServiceR
             Email = req.Email,
             RobotModel = req.RobotModel,
             RobotSerial = req.RobotSerial,
-
             Title = req.Title,
             TrackingNo = req.TrackingNo,
             CustomerOrderNo = req.CustomerOrderNo,
