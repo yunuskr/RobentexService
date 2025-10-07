@@ -22,5 +22,5 @@ public class AuditLog
     [StringLength(256)]
     public string? UserAgent { get; set; }
 
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow.AddHours(3);
 }

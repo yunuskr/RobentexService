@@ -17,6 +17,6 @@ public class AppUser
 
     public bool IsActive { get; set; } = true;
 
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow.AddHours(3);
     public DateTime? LastLoginUtc { get; set; }
 }

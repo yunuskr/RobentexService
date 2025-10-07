@@ -19,5 +19,5 @@ public class ServiceRequestNote
     [StringLength(120)]
     public string? CreatedBy { get; set; }    // admin kullanıcı adı
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(3);
 }
