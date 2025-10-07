@@ -1,14 +1,18 @@
-bin/
-obj/
-Debug/
-Release/
-wwwroot/appsettings.json
+# .NET build çıktıları
+**/bin/**
+**/obj/**
+**/out/**
 
-# IDE/Editor dosyaları
+# VS / Rider
 .vs/
-.vscode/
-
+.idea/
 *.user
 *.suo
-.vscode/launch.json
-appsettings.json
+
+# Paket/ara dosyalar
+packages/
+*.nupkg
+*.snupkg
+
+# Logs
+*.log
