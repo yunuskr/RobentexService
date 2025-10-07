@@ -12,8 +12,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ahd1nfziz2</Fingerprint>
-      <Integrity>fr0Ikom5vN5vLwS+ZShRBBg5z6wE0zi8JAOvHmCP/xI=</Integrity>
+      <Fingerprint>xm8srf1ikn</Fingerprint>
+      <Integrity>uUG3G/uUjHV7pdVk5pLicAwPm9fIBp15aLm6yy/tSMU=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\rtx-modal.css'))</OriginalItemSpec>

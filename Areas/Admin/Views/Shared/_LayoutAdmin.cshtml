@@ -38,9 +38,17 @@
     @* SADECE gizlenmemişse navbarı render et *@
     @if (!hideTopbar)
     {
-        <nav class="navbar navbar-expand-lg navbar-dark" style="background:#0f0f0f;border-bottom:1px solid rgba(255,255,255,.08)">
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top"
+            style="background:#0f0f0f;border-bottom:1px solid rgba(255,255,255,.08)">
             <div class="container-fluid">
-                <a class="navbar-brand fw-bold" href="@Url.Action("Index","Home", new { area="Admin" })">Robentex Admin</a>
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold"
+                href="@Url.Action("Index","Home", new { area="Admin" })">
+                    <img src="~/Images/RxLogo.png"
+                        alt="Robentex"
+                        class="brand-mark"
+                        asp-append-version="true" />
+                    <span>Robentex Admin Paneli</span>
+                </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topbar"
                         aria-controls="topbar" aria-expanded="false" aria-label="Menü">
@@ -91,3 +99,13 @@
     @RenderSection("Scripts", required: false)
 </body>
 </html>
+<style>
+  .navbar .brand-mark{
+    height: 28px;
+    width: auto;
+    display: block;
+  }
+  @@media (min-width: 992px){
+    .navbar .brand-mark{ height: 32px; }
+  }
+</style>

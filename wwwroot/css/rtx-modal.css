@@ -1,20 +1,58 @@
-.rtx-modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; padding:2vh 12px; z-index:9999;}
-.rtx-modal{ width:clamp(320px, 94vw, 1000px); max-height:92vh; background:#1e1e1e; color:#eee; border:1px solid #3a3a3a; border-radius:18px; box-shadow:0 12px 60px rgba(0,0,0,.55); display:flex; flex-direction:column;}
-.rtx-modal-head{ display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid #333; position:relative;}
-.rtx-modal-head h3{ margin:0; font-size:1.1rem;}
-.rtx-modal-head .x{ position:absolute; right:10px; top:8px; background:transparent; color:#bbb; border:none; font-size:28px; line-height:1; cursor:pointer;}
-.rtx-modal-body{ flex:1; min-height:0; overflow:auto; display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:12px 16px;}
-.rtx-modal-foot{ display:flex; gap:10px; justify-content:flex-end; padding:12px 16px; border-top:1px solid #333; background:#1e1e1e; position:sticky; bottom:0;}
+/* ====== MODAL GENEL ====== */
+.rtx-modal-backdrop{
+  position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,.5);
+  display:flex; align-items:center; justify-content:center;
+  padding:2vh 12px;
+}
 
-.col .grp{ margin-bottom:10px;}
-.col .grp.two{ display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-label{ display:block; color:#b0b6bd; margin-bottom:6px; font-size:.95rem;}
-.inp{ width:100%; background:#2c2c2c; border:1px solid #3a3a3a; color:#eaeaea; border-radius:14px; padding:.6rem .9rem; outline:0; min-height:36px;}
-.inp.ro{ opacity:.9;}
+.rtx-modal{
+  width:clamp(320px, 94vw, 1000px);
+  max-height:92vh;
+  background:#1e1e1e; color:#eee;
+  border:1px solid #3a3a3a; border-radius:18px;
+  box-shadow:0 12px 60px rgba(0,0,0,.55);
+  display:flex; flex-direction:column;
+}
 
-.notes{ margin-top:8px; display:flex; flex-direction:column; gap:8px; max-height:230px; overflow:auto;}
-.note{ background:#2a2a2a; border:1px solid #3a3a3a; border-radius:12px; padding:8px 10px;}
-.note .when{ color:#9aa0a6; font-size:.86rem; margin-bottom:4px;}
+.rtx-modal-head{
+  display:flex; align-items:center; gap:12px;
+  padding:14px 16px; border-bottom:1px solid #333; position:relative;
+}
+.rtx-modal-head h3{ margin:0; font-size:1.1rem; }
+.rtx-modal-head .x{
+  position:absolute; right:10px; top:8px;
+  background:transparent; color:#bbb; border:none;
+  font-size:28px; line-height:1; cursor:pointer;
+}
+
+/* Gövde: 2 sütun grid (masaüstü), scroll etkin */
+.rtx-modal-body{
+  flex:1; min-height:0; overflow:auto;
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  padding:12px 16px;
+}
+
+.rtx-modal-foot{
+  display:flex; gap:10px; justify-content:flex-end;
+  padding:12px 16px; border-top:1px solid #333;
+  background:#1e1e1e; position:sticky; bottom:0;
+}
+
+/* Alanlar */
+.col .grp{ margin-bottom:10px; }
+.col .grp.two{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+label{ display:block; color:#b0b6bd; margin-bottom:6px; font-size:.95rem; }
+.inp{
+  width:100%; background:#2c2c2c; border:1px solid #3a3a3a; color:#eaeaea;
+  border-radius:14px; padding:.6rem .9rem; outline:0; min-height:36px;
+}
+.inp.ro{ opacity:.9; }
+
+.notes{ margin-top:8px; display:flex; flex-direction:column; gap:8px; max-height:230px; overflow:auto; }
+.note{ background:#2a2a2a; border:1px solid #3a3a3a; border-radius:12px; padding:8px 10px; }
+.note .when{ color:#9aa0a6; font-size:.86rem; margin-bottom:4px; }
 .note .txt{ white-space:pre-wrap; }
 
 :root{ --amber:#f2c039; }
@@ -22,6 +60,46 @@ label{ display:block; color:#b0b6bd; margin-bottom:6px; font-size:.95rem;}
 .rtx-modal-foot .btn:hover, .rtx-modal-foot .btn.ok:hover{ filter:brightness(1.06); }
 .rtx-modal-foot .btn:active, .rtx-modal-foot .btn.ok:active{ transform: translateY(1px); }
 
+/* ====== RESPONSIVE ====== */
+/* 1) 1024px ve altı: gövde tek sütun */
 @media (max-width:1024px){
-  .rtx-modal-body{ grid-template-columns:1fr; gap:10px; }
+  .rtx-modal-body{
+    grid-template-columns:1fr;      /* tek sütun */
+    gap:12px;
+  }
+}
+
+/* 2) 820px ve altı: hem gövde tek sütun, hem de .grp.two TEK SÜTUN.
+      Gövde gerçek scroll container, sticky footer içerik üstüne binmesin. */
+@media (max-width:820px){
+  .rtx-modal-backdrop{ padding:8px; }
+
+  .rtx-modal{
+    width:96vw;
+    max-height:96dvh;                 /* mobil çubuk değişimine dayanıklı */
+  }
+
+  .rtx-modal-body{
+    flex:1 1 auto;
+    min-height:0;                      /* overflow için kritik */
+    overflow-y:auto;                   /* mobilde kaydır */
+    -webkit-overflow-scrolling:touch;
+
+    grid-template-columns:1fr;         /* tek sütun */
+    gap:10px;
+
+    /* sticky footer'a yer bırak */
+    padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 84px);
+  }
+
+  /* .grp.two içindeki iki alan yan yana değil, alt alta */
+  .col .grp.two{
+    grid-template-columns:1fr;         /* tek sütun */
+    gap:8px;
+  }
+
+  .rtx-modal-foot{
+    position:sticky; bottom:0; z-index:1;
+  }
+  
 }

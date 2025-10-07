@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "u0Tpgk91gsri3Ka0mo9JoB4EmPN3lUnBGa2nq2gsMlw=",
+  "Hash": "E0STwQsDeTBBlHf97q2SOTzNcv+j5BbMjGUNnyZpqqE=",
   "Source": "RobentexService",
   "BasePath": "_content/RobentexService",
   "Mode": "Default",
@@ -73,8 +73,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "ahd1nfziz2",
-      "Integrity": "fr0Ikom5vN5vLwS+ZShRBBg5z6wE0zi8JAOvHmCP/xI=",
+      "Fingerprint": "xm8srf1ikn",
+      "Integrity": "uUG3G/uUjHV7pdVk5pLicAwPm9fIBp15aLm6yy/tSMU=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\rtx-modal.css"
@@ -1447,51 +1447,6 @@
   ],
   "Endpoints": [
     {
-      "Route": "css/rtx-modal.ahd1nfziz2.css",
-      "AssetFile": "C:\\Users\\yunusemre.kara\\Desktop\\RobentexService\\wwwroot\\css\\rtx-modal.css",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "2077"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"fr0Ikom5vN5vLwS+ZShRBBg5z6wE0zi8JAOvHmCP/xI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 06 Oct 2025 09:04:22 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "ahd1nfziz2"
-        },
-        {
-          "Name": "label",
-          "Value": "css/rtx-modal.css"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-fr0Ikom5vN5vLwS+ZShRBBg5z6wE0zi8JAOvHmCP/xI="
-        }
-      ]
-    },
-    {
       "Route": "css/rtx-modal.css",
       "AssetFile": "C:\\Users\\yunusemre.kara\\Desktop\\RobentexService\\wwwroot\\css\\rtx-modal.css",
       "Selectors": [],
@@ -1502,7 +1457,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "2077"
+          "Value": "3375"
         },
         {
           "Name": "Content-Type",
@@ -1510,11 +1465,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"fr0Ikom5vN5vLwS+ZShRBBg5z6wE0zi8JAOvHmCP/xI=\""
+          "Value": "\"uUG3G/uUjHV7pdVk5pLicAwPm9fIBp15aLm6yy/tSMU=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 06 Oct 2025 09:04:22 GMT"
+          "Value": "Tue, 07 Oct 2025 12:55:07 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1524,7 +1479,52 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-fr0Ikom5vN5vLwS+ZShRBBg5z6wE0zi8JAOvHmCP/xI="
+          "Value": "sha256-uUG3G/uUjHV7pdVk5pLicAwPm9fIBp15aLm6yy/tSMU="
+        }
+      ]
+    },
+    {
+      "Route": "css/rtx-modal.xm8srf1ikn.css",
+      "AssetFile": "C:\\Users\\yunusemre.kara\\Desktop\\RobentexService\\wwwroot\\css\\rtx-modal.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3375"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"uUG3G/uUjHV7pdVk5pLicAwPm9fIBp15aLm6yy/tSMU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 07 Oct 2025 12:55:07 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "xm8srf1ikn"
+        },
+        {
+          "Name": "label",
+          "Value": "css/rtx-modal.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-uUG3G/uUjHV7pdVk5pLicAwPm9fIBp15aLm6yy/tSMU="
         }
       ]
     },
@@ -6881,7 +6881,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 07 Oct 2025 11:14:58 GMT"
+          "Value": "Tue, 07 Oct 2025 12:55:10 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -6918,7 +6918,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 07 Oct 2025 11:14:58 GMT"
+          "Value": "Tue, 07 Oct 2025 12:55:10 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -6955,7 +6955,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 07 Oct 2025 11:14:58 GMT"
+          "Value": "Tue, 07 Oct 2025 12:55:10 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -7000,7 +7000,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 07 Oct 2025 11:14:58 GMT"
+          "Value": "Tue, 07 Oct 2025 12:55:10 GMT"
         },
         {
           "Name": "Cache-Control",
