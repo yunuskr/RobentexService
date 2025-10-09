@@ -35,7 +35,7 @@
 
     <div class="search">
       <span class="mag">🔍</span>
-      <input id="searchBox" type="text" placeholder="Ara: #numara, başlık, müşteri..." />
+      <input id="searchBox" type="text" placeholder="Ara: firma adı veya RX kodu" />
     </div>
   </header>
 
@@ -50,8 +50,11 @@
       </div>
       <div class="kb-col-body">
         @foreach (var it in (Model?.YeniTalep ?? Enumerable.Empty<ServiceRequest>())){
-          <article class="kb-card @(it.Status == ServiceStatus.TeklifReddedildi ? "rejected" : "")"
-         data-id="@it.Id" data-status="@((int)it.Status)">
+         <article class="kb-card @(it.Status == ServiceStatus.TeklifReddedildi ? "rejected" : "")"
+            data-id="@it.Id"
+            data-status="@((int)it.Status)"
+            data-company="@it.CompanyName"
+            data-rx="@it.RobentexOrderNo">
             <div class="meta">Oluşturma Tarihi: @it.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy / HH:mm")</div>
 
             <!-- Firma (tek satır, ellipsis) -->
@@ -504,6 +507,64 @@
     margin-top: 4px;
   }
 }
+/* Başlık satırını tamamen gizle */
+.kb-card .ttl{ display:none !important; }
+
+/* Kartın kendi padding'i küçülsün */
+.kb-card{ padding: 6px 8px !important; }
+/* Oluşturma tarihi satırını tamamen kaldır */
+.kb-card .meta{ display:none !important; }
+
+/* Tarih kalkınca üst–alt boşlukları biraz daha sıkılaştır */
+.kb-card{ padding-top: 6px !important; padding-bottom: 6px !important; }
+.kb-col-body{ gap: 7px !important; }
+
+/* Firma satırı daha küçük ve kompakt */
+.kb-card .firm{
+  font-size: .9rem !important;
+  font-weight: 700 !important;
+  margin: 1px 0 2px !important;
+}
+
+/* Meta ve ID satırlarını da küçült */
+.kb-card .meta{
+  font-size: .75rem !important;
+  margin-bottom: 3px !important;
+}
+.kb-card .id{
+  font-size: .75rem !important;
+  margin-bottom: 5px !important;
+}
+
+/* Kartlar arası mesafeyi azalt */
+.kb-col-body{
+  gap: 8px !important;
+  padding: 8px !important; /* istersen mevcut değeri koruyabilirsin */
+}
+
+/* Butonları kompakt yap */
+.kb-card .actions{ gap: 6px !important; }
+.btn{
+  padding: .28rem .6rem !important;
+  font-size: .78rem !important;
+  border-radius: 999px !important;
+  line-height: 1.1 !important;
+}
+
+/* Reddedilen kartlarda da aynı sıkılık kalsın */
+.kb-card.rejected{
+  padding: 6px 8px !important;
+}
+
+/* Mobilde biraz daha sıkılaştır (opsiyonel) */
+@@media (max-width: 768px){
+  .kb-card{ padding: 6px 7px !important; }
+  .kb-card .firm{ font-size: .88rem !important; }
+  .kb-card .meta, .kb-card .id{ font-size: .72rem !important; }
+  .btn{ font-size: .76rem !important; padding: .26rem .52rem !important; }
+  .kb-col-body{ gap: 7px !important; }
+}
+
   </style>
   
 }
@@ -521,15 +582,22 @@
 
   <!-- basit arama: kart başlığı / id içinde filtre -->
   <script>
-    const q = document.getElementById('searchBox');
-    function applySearch(){
-      const term = (q?.value || '').toLowerCase();
-      document.querySelectorAll('.kb-card').forEach(card=>{
-        const title = card.querySelector('.ttl')?.textContent.toLowerCase() || '';
-        const id    = card.querySelector('.id')?.textContent.toLowerCase() || '';
-        card.style.display = (term==='' || title.includes(term) || id.includes(term)) ? '' : 'none';
-      });
-    }
-    q?.addEventListener('input', applySearch);
-  </script>
+  const q = document.getElementById('searchBox');
+
+  function applySearch(){
+    const term = (q?.value || '').trim().toLowerCase();
+
+    document.querySelectorAll('.kb-card').forEach(card => {
+      // Kart üzerinde sakladığımız değerler
+      const company = (card.dataset.company || '').toLowerCase();
+      const rx      = (card.dataset.rx || '').toLowerCase();
+
+      // Firma adı veya RX kodu eşleşirse göster
+      const match = term === '' || company.includes(term) || rx.includes(term);
+      card.style.display = match ? '' : 'none';
+    });
+  }
+
+  q?.addEventListener('input', applySearch);
+</script>
 }

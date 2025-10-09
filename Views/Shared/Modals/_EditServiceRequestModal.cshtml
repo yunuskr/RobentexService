@@ -58,8 +58,6 @@
               <label>Arıza Tanımı</label>
               <textarea class="inp ro compact" rows="3" data-disp="FaultDescription" readonly></textarea>
             </div>
-
-            
           </div>
 
           <!-- SAĞ -->
@@ -101,18 +99,29 @@
               <label>Yeni Not (opsiyonel)</label>
               <textarea class="inp compact" name="NewNote" rows="3" placeholder="+ Not ekle"></textarea>
             </div>
-
-            @* NOT LİSTESİ KALDIRILDI:
-            <div class="notes" data-notes></div>
-            *@
           </div>
         </div>
 
         <div class="rtx-modal-foot">
           <button type="button" class="btn" data-close>İptal</button>
+
+          @* SOFT DELETE: aynı formdan farklı endpoint'e post *@
+          <button type="submit"
+                  class="btn danger"
+                  formmethod="post"
+                  formaction="@Url.Action("SoftDelete", "ServiceRequests", new { area = "Admin" })">
+            Talebi Sil
+          </button>
+
           <button type="submit" class="btn ok">Kaydet</button>
         </div>
       </form>
     </div>
   </div>
 </template>
+<style>
+  .btn.danger{
+  background:#d94a4a; color:#fff; border:none;
+}
+.btn.danger:hover{ filter:brightness(1.08); }
+</style>

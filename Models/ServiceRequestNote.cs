@@ -16,6 +16,18 @@ public class ServiceRequestNote
     [Required, StringLength(2000)]
     public string Text { get; set; } = string.Empty;
 
+    /// <summary>Soft delete bayrağı. true ise listelerde görünmez.</summary>
+    public bool IsDeleted { get; set; } = false;
+
+    /// <summary>İsteğe bağlı: ne zaman silindi</summary>
+    public DateTime? DeletedAt { get; set; }
+
+    /// <summary>İsteğe bağlı: kim sildi / neden</summary>
+    [StringLength(200)]
+    public string? DeletedBy { get; set; }
+    [StringLength(400)]
+    public string? DeleteReason { get; set; }
+
     [StringLength(120)]
     public string? CreatedBy { get; set; }    // admin kullanıcı adı
 

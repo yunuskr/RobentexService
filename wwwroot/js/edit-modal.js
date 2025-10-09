@@ -43,46 +43,16 @@
       setDisp(root,'FaultDescription', data.faultDescription);
       setDisp(root,'CreatedAt',        fmtDate(data.createdAt));
 
-      // --- Not listesi ARTIK GÖSTERİLMİYOR ---
-      // Eğer partial içinde [data-notes] yoksa sorun çıkmaması için null-check:
+      // Notlar (gösterilmiyorsa dokunma)
       const notesWrap = root.querySelector('[data-notes]');
-      if (notesWrap) {
-        notesWrap.innerHTML = '';
-        // Notları artık doldurmuyoruz. İleride tekrar göstermek istersen,
-        // aşağıdaki bloğu açıp kullanabilirsin.
-        /*
-        if (Array.isArray(data.notes) && data.notes.length){
-          data.notes.forEach(n=>{
-            const div = document.createElement('div');
-            div.className = 'note';
-            div.innerHTML = `
-              <div class="when">${fmtDate(n.createdAt)} — ${escapeHtml(n.createdBy || '-')}</div>
-              <div class="txt">${escapeHtml(n.text || '')}</div>`;
-            notesWrap.appendChild(div);
-          });
-        }
-        */
-      }
+      if (notesWrap) notesWrap.innerHTML = '';
 
-      // kapatma
+      // Kapatma
       const close = () => { document.body.style.overflow=''; root.remove(); };
       root.addEventListener('click', (ev)=>{ if (ev.target === root || ev.target.hasAttribute('data-close')) close(); });
       root.querySelector('.x')?.addEventListener('click', close);
       window.addEventListener('keydown', (ev)=>{ if (ev.key === 'Escape') close(); }, { once:true });
       document.body.style.overflow = 'hidden';
-
-      // kaydet
-      form.addEventListener('submit', async (ev)=>{
-        ev.preventDefault();
-        const fd = new FormData(form);
-        const resp = await fetch(form.action, {
-          method:'POST', body: fd,
-          headers:{ 'X-Requested-With':'XMLHttpRequest' },
-          credentials:'same-origin'
-        });
-        if (resp.ok){ close(); location.reload(); }
-        else { alert('Kaydedilemedi: ' + resp.status); }
-      });
 
       // UX: ilk inputa odaklan
       form.querySelector('input[name="Title"]')?.focus();
@@ -108,7 +78,48 @@
     if(!iso) return '';
     try{ const d = new Date(iso); return d.toLocaleString('tr-TR', {dateStyle:'short', timeStyle:'short'}); }catch{ return ''; }
   }
-  function escapeHtml(s){
-    return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
 })();
+
+// === TEK SUBMIT HANDLER (Kaydet + Sil/SoftDelete) ===
+document.addEventListener('submit', async (e) => {
+  const form = e.target;
+  if (!form || form.id !== 'editForm') return;
+
+  e.preventDefault();
+  if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+
+  // Çifte submit kilidi
+  if (form.dataset.submitting === '1') return;
+  form.dataset.submitting = '1';
+
+  try {
+    const submitter = e.submitter || document.activeElement || form.querySelector('[type="submit"]');
+    const url = (submitter && submitter.getAttribute('formaction')) || form.action;
+    const method = (submitter && submitter.getAttribute('formmethod')) || form.method || 'post';
+
+    // Sadece JS confirm (butonda onclick olmasın)
+    if (submitter && submitter.classList.contains('danger')) {
+      const ok = confirm('Bu talebi silindi olarak işaretlemek istediğinize emin misiniz?');
+      if (!ok) { form.dataset.submitting = '0'; return; }
+    }
+
+    const fd = new FormData(form);
+    const res = await fetch(url, { method, body: fd, credentials: 'same-origin' });
+
+    if (res.ok) {
+      try { await res.text(); } catch {}
+      const modal = form.closest('.rtx-modal-backdrop');
+      if (modal) modal.remove();
+      setTimeout(() => window.location.reload(), 350);
+      return;
+    }
+
+    const msg = await res.text().catch(() => '');
+    alert(msg || 'İşlem başarısız.');
+    form.dataset.submitting = '0';
+  } catch (err) {
+    console.error(err);
+    alert('İşlem sırasında bir hata oluştu.');
+    form.dataset.submitting = '0';
+  }
+});

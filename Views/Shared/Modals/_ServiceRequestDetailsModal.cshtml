@@ -59,7 +59,7 @@
           <input class="inp ro" data-dsp="LastModified" readonly />
         </div>
 
-        <!-- NOTLAR: TAM GENİŞLİK + SCROLL -->
+        <!-- NOTLAR: TAM GENİŞLİK -->
         <div class="grp row-notes">
           <label>Notlar</label>
           <div class="notes" data-notes></div>
@@ -69,75 +69,55 @@
       <div class="rtx-modal-foot">
         <button type="button" class="btn" data-close>Kapat</button>
       </div>
+
+      @* Silme isteklerinde kullanılacak gizli antiforgery token *@
+      <form id="details-af-token" style="display:none;">
+        @Html.AntiForgeryToken()
+      </form>
     </div>
   </div>
 </template>
+
 <style>
-/* Detay modalına özel grid */
-/* Dış gövde kaymasın, sadece notlar kaydırılsın */
-/* Varsayılan: küçük/orta ekranlarda gövde scroll edebilir */
-.rtx-modal-body.details-grid{
-  overflow: auto;   /* küçük ekranlarda ulaşılabilirlik */
-  min-height: 0;
+/* Detay grid: masaüstünde dış scroll kapalı, mobilde açık */
+.rtx-modal-body.details-grid{ overflow:auto; min-height:0; }
+.details-grid .row-notes{ grid-column:1 / -1; min-height:0; }
+.details-grid .notes{ max-height:220px; overflow:auto; display:flex; flex-direction:column; gap:8px; }
+
+/* Not görünümü + sağda Sil butonu */
+.details-grid .notes .note{
+  display:flex; align-items:flex-start; gap:10px;
+  background:#2a2a2a; border:1px solid #3a3a3a; border-radius:12px;
+  padding:8px 10px;
 }
-
-/* Notlar her zaman kendi içinde scroll */
-.details-grid .row-notes{ grid-column: 1 / -1; min-height: 0; }
-.details-grid .notes{
-  max-height: 220px;      /* küçük ekran için */
-  overflow: auto;
+.details-grid .notes .note .when{ color:#9aa0a6; font-size:.86rem; margin-bottom:4px; }
+.details-grid .notes .note .txt{ white-space:pre-wrap; }
+.note .note-del{
+  margin-left:auto;
+  background:#3a2222; border:1px solid #5a2a2a; color:#ffdede;
+  padding:.35rem .6rem; border-radius:10px; cursor:pointer; font-weight:700;
 }
+.note .note-del:hover{ filter:brightness(1.05); }
+.note .note-del:active{ transform:translateY(1px); }
 
-/* Daha yüksek ekranlarda (masaüstü) dış scroll'u kapat,
-   notlar listesini biraz daha büyüt */
-@@media (min-height: 820px){
-  .rtx-modal-body.details-grid{ overflow: hidden; }
-  .details-grid .notes{ max-height: 320px; }
+/* Daha yüksek ekranlarda not listesini büyüt */
+@@media (min-height:820px){
+  .rtx-modal-body.details-grid{ overflow:hidden; }
+  .details-grid .notes{ max-height:320px; }
 }
+/* Çok kısa ekranlar */
+@@media (max-height:640px){ .details-grid .notes{ max-height:180px; } }
 
-/* Çok kısa ekranlar için daha da küçült (opsiyonel) */
-@@media (max-height: 640px){
-  .details-grid .notes{ max-height: 180px; }
-}
-/* ====== SADECE MOBİL (≤820px) AYARLARI ====== */
-@@media (max-width: 820px){
-
-  /* Modal kutusu ekranı iyi kullansın, başlık/altlık sabit kalsın */
-  .rtx-modal{
-    width: 96vw;
-    max-height: 96vh;
-  }
-
-  /* İçerik: kalan alanı kaplasın ve kaydırılabilsin */
+/* SADECE MOBİL (≤820px) */
+@@media (max-width:820px){
+  .rtx-modal{ width:96vw; max-height:96vh; }
   .rtx-modal-body.details-grid{
-    display: grid;                 /* varsa grid yapısını koru */
-    grid-template-columns: 1fr !important;  /* iki sütunu alt alta getir */
-    gap: 10px;
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: auto;                /* mobilde gövde kaydırılabilir */
-    padding: 12px 14px;
+    display:grid; grid-template-columns:1fr !important; gap:10px;
+    flex:1 1 auto; min-height:0; overflow:auto; padding:12px 14px;
   }
-
-  /* Her grup blok arası biraz nefes */
-  .rtx-modal-body.details-grid .grp{
-    margin: 0;                     /* grid gap yeterli */
-  }
-
-  /* Notlar: mobilde daha yüksek bir alan ver, kendi içinde scroll */
-  .details-grid .row-notes{ grid-column: 1 / -1; min-height: 0; }
-  .details-grid .row-notes .notes{
-    max-height: 45vh;              /* mobilde rahat okuma */
-    overflow: auto;
-  }
-
-  /* iOS yakınlaştırma engeli: form kontrollerinde min 16px */
-  .rtx-modal-body.details-grid .inp{
-    font-size: 16px;
-  }
-
-  /* (Opsiyonel) mobil scrollbar görünümü */
-  .rtx-modal-body.details-grid::-webkit-scrollbar{ width: 10px; }
+  .details-grid .row-notes .notes{ max-height:45vh; overflow:auto; }
+  .rtx-modal-body.details-grid .inp{ font-size:16px; }
+  .rtx-modal-body.details-grid::-webkit-scrollbar{ width:10px; }
   .rtx-modal-body.details-grid::-webkit-scrollbar-thumb{
     background:#555; border-radius:10px; border:2px solid #2f2f2f;
   }

@@ -15,18 +15,19 @@ public class HomeController(ApplicationDbContext db) : Controller
     {
         var items = await db.ServiceRequests
             .AsNoTracking()
+            .Where(x => !x.IsDeleted)                 // << sadece silinmemişler
             .Include(x => x.Notes)
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
 
         var vm = new HomeIndexViewModel
         {
-            YeniTalep = items.Where(x => x.Status == ServiceStatus.YeniTalep).ToList(),
-            TeklifIletildi = items.Where(x => x.Status == ServiceStatus.TeklifIletildi).ToList(),
-            ServisAsamasi = items.Where(x => x.Status == ServiceStatus.ServisAsamasi).ToList(),
+            YeniTalep        = items.Where(x => x.Status == ServiceStatus.YeniTalep).ToList(),
+            TeklifIletildi   = items.Where(x => x.Status == ServiceStatus.TeklifIletildi).ToList(),
+            ServisAsamasi    = items.Where(x => x.Status == ServiceStatus.ServisAsamasi).ToList(),
             TeklifReddedildi = items.Where(x => x.Status == ServiceStatus.TeklifReddedildi).ToList(),
-            Tamamlandi = items.Where(x => x.Status == ServiceStatus.Tamamlandi).ToList(),
-            FaturaEdildi = items.Where(x => x.Status == ServiceStatus.FaturaEdildi).ToList(),
+            Tamamlandi       = items.Where(x => x.Status == ServiceStatus.Tamamlandi).ToList(),
+            FaturaEdildi     = items.Where(x => x.Status == ServiceStatus.FaturaEdildi).ToList(),
         };
 
         return View(vm);
@@ -64,52 +65,59 @@ public class HomeController(ApplicationDbContext db) : Controller
         return Json(vm); // camelCase / PascalCase farkını JS tarafı tolere ediyor
     }
     [HttpGet]
-public async Task<IActionResult> DetailsData(int id)
-{
-    var s = await db.ServiceRequests
-        .AsNoTracking()
-        .Include(x => x.Notes)
-        .SingleOrDefaultAsync(x => x.Id == id);
-
-    if (s == null) return NotFound();
-
-    // Son düzenlenme: UpdatedAt varsa onu, yoksa en yeni not, o da yoksa CreatedAt
-    DateTime? lastNote = s.Notes?.OrderByDescending(n => n.CreatedAt).Select(n => (DateTime?)n.CreatedAt).FirstOrDefault();
-    DateTime lastModified = s.UpdatedAt ?? lastNote ?? s.CreatedAt;
-
-    string statusText = s.Status switch
+    public async Task<IActionResult> DetailsData(int id)
     {
-        ServiceStatus.YeniTalep        => "Yeni Talep",
-        ServiceStatus.TeklifIletildi   => "Teklif İletildi",
-        ServiceStatus.ServisAsamasi    => "Servis Aşaması",
-        ServiceStatus.TeklifReddedildi => "Teklif Reddedildi",
-        ServiceStatus.Tamamlandi       => "Tamamlandı",
-        ServiceStatus.FaturaEdildi     => "Fatura Edildi",
-        _ => s.Status.ToString()
-    };
+        var s = await db.ServiceRequests
+            .AsNoTracking()
+            .Include(x => x.Notes)
+            .SingleOrDefaultAsync(x => x.Id == id);
 
-    return Json(new {
-        id = s.Id,
-        companyName   = s.CompanyName,
-        title         = s.Title,
-        status        = (int)s.Status,
-        statusText,
-        requesterName = $"{(s.FirstName ?? "").Trim()} {(s.LastName ?? "").Trim()}".Trim(),
-        phone         = s.Phone,
-        email         = s.Email,
-        trackingNo    = s.TrackingNo,
-        robotModel    = s.RobotModel,
-        robotSerial   = s.RobotSerial,
-        lastModifiedUtc = lastModified,  // ISO gelir; JS’de locale formatlayacağız
-        notes = (s.Notes ?? [])
+        if (s == null) return NotFound();
+
+        // Sadece silinmemiş notlar
+        var activeNotes = (s.Notes ?? []).Where(n => !n.IsDeleted);
+
+        DateTime? lastNote = activeNotes
             .OrderByDescending(n => n.CreatedAt)
-            .Select(n => new {
-                createdAt = n.CreatedAt,
-                createdBy = n.CreatedBy,
-                text      = n.Text ?? ""
-            })
-            .ToList()
-    });
-}
-    
+            .Select(n => (DateTime?)n.CreatedAt)
+            .FirstOrDefault();
+
+        DateTime lastModified = s.UpdatedAt ?? lastNote ?? s.CreatedAt;
+
+        string statusText = s.Status switch
+        {
+            ServiceStatus.YeniTalep        => "Yeni Talep",
+            ServiceStatus.TeklifIletildi   => "Teklif İletildi",
+            ServiceStatus.ServisAsamasi    => "Servis Aşaması",
+            ServiceStatus.TeklifReddedildi => "Teklif Reddedildi",
+            ServiceStatus.Tamamlandi       => "Tamamlandı",
+            ServiceStatus.FaturaEdildi     => "Fatura Edildi",
+            _ => s.Status.ToString()
+        };
+
+        return Json(new {
+            id = s.Id,
+            companyName   = s.CompanyName,
+            title         = s.Title,
+            status        = (int)s.Status,
+            statusText,
+            requesterName = $"{(s.FirstName ?? "").Trim()} {(s.LastName ?? "").Trim()}".Trim(),
+            phone         = s.Phone,
+            email         = s.Email,
+            trackingNo    = s.TrackingNo,
+            robotModel    = s.RobotModel,
+            robotSerial   = s.RobotSerial,
+            lastModifiedUtc = lastModified,
+            notes = activeNotes
+                .OrderByDescending(n => n.CreatedAt)
+                .Select(n => new {
+                    id        = n.Id,          // ★ EKLENDİ
+                    createdAt = n.CreatedAt,
+                    createdBy = n.CreatedBy,
+                    text      = n.Text ?? ""
+                })
+                .ToList()
+        });
+    }
+        
 }
