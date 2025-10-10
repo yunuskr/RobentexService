@@ -56,6 +56,7 @@ public class HomeController(ApplicationDbContext db) : Controller
             Phone = s.Phone,
             RobotModel = s.RobotModel,
             RobotSerial = s.RobotSerial,
+            FaultDescription = s.FaultDescription,
             Notes = s.Notes
             .OrderByDescending(n => n.CreatedAt)
             .Select(n => (n.CreatedAt, n.CreatedBy, n.Text ?? string.Empty))
@@ -75,7 +76,8 @@ public class HomeController(ApplicationDbContext db) : Controller
         if (s == null) return NotFound();
 
         // Sadece silinmemiş notlar
-        var activeNotes = (s.Notes ?? []).Where(n => !n.IsDeleted);
+        var activeNotes = (s.Notes ?? Enumerable.Empty<ServiceRequestNote>())
+            .Where(n => !n.IsDeleted);
 
         DateTime? lastNote = activeNotes
             .OrderByDescending(n => n.CreatedAt)
@@ -95,23 +97,30 @@ public class HomeController(ApplicationDbContext db) : Controller
             _ => s.Status.ToString()
         };
 
-        return Json(new {
+        return Json(new
+        {
             id = s.Id,
-            companyName   = s.CompanyName,
-            title         = s.Title,
-            status        = (int)s.Status,
+            companyName      = s.CompanyName,
+            title            = s.Title,
+            status           = (int)s.Status,
             statusText,
-            requesterName = $"{(s.FirstName ?? "").Trim()} {(s.LastName ?? "").Trim()}".Trim(),
-            phone         = s.Phone,
-            email         = s.Email,
-            trackingNo    = s.TrackingNo,
-            robotModel    = s.RobotModel,
-            robotSerial   = s.RobotSerial,
-            lastModifiedUtc = lastModified,
+            requesterName    = $"{(s.FirstName ?? "").Trim()} {(s.LastName ?? "").Trim()}".Trim(),
+            phone            = s.Phone,
+            email            = s.Email,
+
+            // DEĞİŞENLER:
+            robentexOrderNo  = s.RobentexOrderNo,   // ← TakipNo yerine bunu gönderiyoruz
+            faultDescription = s.FaultDescription,  // ← Arıza Tanımı da eklendi
+
+            robotModel       = s.RobotModel,
+            robotSerial      = s.RobotSerial,
+            lastModifiedUtc  = lastModified,
+
             notes = activeNotes
                 .OrderByDescending(n => n.CreatedAt)
-                .Select(n => new {
-                    id        = n.Id,          // ★ EKLENDİ
+                .Select(n => new
+                {
+                    id        = n.Id,
                     createdAt = n.CreatedAt,
                     createdBy = n.CreatedBy,
                     text      = n.Text ?? ""

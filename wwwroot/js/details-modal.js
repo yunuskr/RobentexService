@@ -30,8 +30,9 @@
       setVal(root, "Title", d.title || "");
       setVal(root, "StatusText", d.statusText || "");
       setVal(root, "Requester", d.requesterName || "");
-      setVal(root, "TrackingNo", d.trackingNo || "");
       setVal(root, "Phone", d.phone || "");
+      setVal(root, "RobentexOrderNo", d.robentexOrderNo || "");
+      setVal(root, "FaultDescription", d.faultDescription || "");
       setVal(root, "Email", d.email || "");
       setVal(root, "RobotModel", d.robotModel || "");
       setVal(root, "RobotSerial", d.robotSerial || "");

@@ -25,8 +25,8 @@
           <input class="inp ro" data-dsp="StatusText" readonly />
         </div>
         <div class="grp">
-          <label>Takip No</label>
-          <input class="inp ro" data-dsp="TrackingNo" readonly />
+          <label>Robentex Sipariş No</label>
+          <input class="inp ro" data-dsp="RobentexOrderNo" readonly />
         </div>
 
         <!-- Sıra 3 -->
@@ -57,6 +57,12 @@
         <div class="grp">
           <label>Son Düzenlenme</label>
           <input class="inp ro" data-dsp="LastModified" readonly />
+        </div>
+
+        <!-- Arıza Tanımı: TAM GENİŞLİK (daha kompakt) -->
+        <div class="grp" style="grid-column:1 / -1;">
+          <label>Arıza Tanımı</label>
+          <textarea class="inp ro compact" rows="3" data-dsp="FaultDescription" readonly></textarea>
         </div>
 
         <!-- NOTLAR: TAM GENİŞLİK -->
@@ -121,5 +127,11 @@
   .rtx-modal-body.details-grid::-webkit-scrollbar-thumb{
     background:#555; border-radius:10px; border:2px solid #2f2f2f;
   }
+  .details-grid textarea[data-dsp="FaultDescription"]{
+  min-height: 64px;
+  max-height: 110px;     /* önceki halinden daha küçük */
+  overflow: auto;        /* içerik uzun olursa textarea içinde scroll */
+  resize: vertical;      /* istersen kullanıcı dikeyde büyütebilsin */
+}
 }
 </style>

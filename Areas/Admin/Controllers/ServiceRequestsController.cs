@@ -113,7 +113,7 @@ public class ServiceRequestsController(ApplicationDbContext db, ILogger<ServiceR
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Save(int Id, string? Title, string? TrackingNo,
-        string? CustomerOrderNo, string? RobentexOrderNo, ServiceStatus Status, string? NewNote)
+        string? CustomerOrderNo, string? RobentexOrderNo, ServiceStatus Status, string? NewNote,string? FaultDescription)
     {
         var s = await db.ServiceRequests.Include(x => x.Notes).FirstOrDefaultAsync(x => x.Id == Id);
         if (s == null) return NotFound();
@@ -123,6 +123,7 @@ public class ServiceRequestsController(ApplicationDbContext db, ILogger<ServiceR
         s.CustomerOrderNo = CustomerOrderNo;
         s.RobentexOrderNo = RobentexOrderNo;
         s.Status = Status;
+        s.FaultDescription = FaultDescription?.Trim();
         s.UpdatedAt = DateTime.UtcNow.AddHours(3);
 
         if (!string.IsNullOrWhiteSpace(NewNote))

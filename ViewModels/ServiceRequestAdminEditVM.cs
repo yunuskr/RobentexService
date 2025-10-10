@@ -26,8 +26,11 @@ public class ServiceRequestAdminEditVM
     [Display(Name="Müşteri Sipariş No")]
     public string? CustomerOrderNo { get; set; }
 
-    [Display(Name="Robentex Sipariş No")]
+    [Display(Name = "Robentex Sipariş No")]
     public string? RobentexOrderNo { get; set; }
+    
+    [Display(Name="Arıza Tanımı")]
+    public string? FaultDescription { get; set; }
 
     [Display(Name="Durum/Bayrak")]
     public ServiceStatus Status { get; set; }

@@ -55,9 +55,13 @@
             </div>
 
             <div class="grp">
-              <label>Arıza Tanımı</label>
-              <textarea class="inp ro compact" rows="3" data-disp="FaultDescription" readonly></textarea>
-            </div>
+            <label>Arıza Tanımı</label>
+            <textarea
+              class="inp compact"
+              rows="4"
+              data-disp="FaultDescription"
+              name="FaultDescription"></textarea>
+</div>
           </div>
 
           <!-- SAĞ -->
@@ -76,11 +80,6 @@
                 <label>Robentex Sipariş No</label>
                 <input class="inp" name="RobentexOrderNo" />
               </div>
-            </div>
-
-            <div class="grp">
-              <label>Takip No</label>
-              <input class="inp" name="TrackingNo" />
             </div>
 
             <div class="grp">
@@ -120,6 +119,9 @@
   </div>
 </template>
 <style>
+textarea[name="NewNote"]{
+  height: 200px;         /* istediğin piksel değeri */
+}
   .btn.danger{
   background:#d94a4a; color:#fff; border:none;
 }
