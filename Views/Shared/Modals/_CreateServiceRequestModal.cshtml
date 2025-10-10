@@ -12,16 +12,17 @@
           <button type="button" class="x" data-close aria-label="Kapat">&times;</button>
         </div>
 
-        <!-- Kaydırılabilir gövde -->
         <div class="rtx-modal-body create-grid">
           <div class="grp">
             <label>Firma *</label>
             <input class="inp" name="CompanyName" required />
           </div>
+
           <div class="grp">
             <label>Başlık</label>
             <input class="inp" name="Title" placeholder="Opsiyonel" />
           </div>
+
           <div class="grp">
             <label>Durum</label>
             <select class="inp" name="Status">
@@ -38,42 +39,42 @@
             <label>Ad *</label>
             <input class="inp" name="FirstName" required />
           </div>
+
           <div class="grp">
             <label>Soyad *</label>
             <input class="inp" name="LastName" required />
           </div>
+
           <div class="grp">
             <label>Tel *</label>
             <input class="inp" name="Phone" required />
           </div>
 
           <div class="grp">
-            <label>E-posta</label>
-            <input class="inp" name="Email" />
+            <label>E-posta *</label>
+            <input class="inp" name="Email" type="email" required />
           </div>
+
           <div class="grp">
-            <label>Robot Model</label>
-            <input class="inp" name="RobotModel" />
+            <label>Robot Model *</label>
+            <input class="inp" name="RobotModel" required />
           </div>
+
           <div class="grp">
-            <label>Robot Seri No</label>
-            <input class="inp" name="RobotSerial" />
+            <label>Robot Seri No *</label>
+            <input class="inp" name="RobotSerial" required />
           </div>
 
           <div class="grp">
             <label>Müşteri Sipariş No</label>
             <input class="inp" name="CustomerOrderNo" />
           </div>
+
           <div class="grp">
             <label>Robentex Sipariş No</label>
             <input class="inp" name="RobentexOrderNo" />
           </div>
-          <div class="grp">
-            <label>Takip No</label>
-            <input class="inp" name="TrackingNo" />
-          </div>
 
-          <!-- Arıza Tanımı + İlk Not: aynı satırda iki sütun -->
           <div class="two-wide">
             <div class="grp">
               <label>Arıza Tanımı *</label>

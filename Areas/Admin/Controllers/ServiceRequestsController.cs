@@ -65,49 +65,70 @@ public class ServiceRequestsController(ApplicationDbContext db, ILogger<ServiceR
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateDto dto)
     {
-        // basit zorunlu alan kontrolü
-        if (string.IsNullOrWhiteSpace(dto.CompanyName) ||
-            string.IsNullOrWhiteSpace(dto.FirstName) ||
-            string.IsNullOrWhiteSpace(dto.LastName) ||
-            string.IsNullOrWhiteSpace(dto.Phone) ||
-            string.IsNullOrWhiteSpace(dto.FaultDescription))
+        // Eksik alanları topla (Müşteri Sipariş No HARİÇ)
+        var missing = new List<string>();
+        void Need(string? v, string label)
         {
-            return BadRequest("Zorunlu alanlar eksik.");
+            if (string.IsNullOrWhiteSpace(v)) missing.Add(label);
+        }
+
+        Need(dto.CompanyName,      "Firma Adı");
+        Need(dto.FirstName,        "Ad");
+        Need(dto.LastName,         "Soyad");
+        Need(dto.Phone,            "Tel");
+        Need(dto.Email,            "E-posta");
+        Need(dto.RobotModel,       "Robot Model");
+        Need(dto.RobotSerial,      "Robot Seri No");
+        Need(dto.FaultDescription, "Arıza Tanımı");
+        // İSTEĞE BAĞLI: Need(dto.Title, "Başlık");
+        // İSTEĞE BAĞLI: Need(dto.TrackingNo, "Takip No");
+        // İSTEĞE BAĞLI: Need(dto.RobentexOrderNo, "Robentex Sipariş No"); // adminde genelde opsiyonel
+
+        if (missing.Count > 0)
+        {
+            // 400 yerine 200 dön → kullanıcı hata kodu görmez
+            return Ok(new
+            {
+                ok = false,
+                message = "Zorunlu alanlar eksik.",
+                missing
+            });
         }
 
         var entity = new ServiceRequest
         {
-            CompanyName = dto.CompanyName?.Trim(),
-            Title = string.IsNullOrWhiteSpace(dto.Title) ? null : dto.Title!.Trim(),
-            FirstName = dto.FirstName?.Trim(),
-            LastName = dto.LastName?.Trim(),
-            Phone = dto.Phone?.Trim(),
-            Email = dto.Email?.Trim(),
-            RobotModel = dto.RobotModel?.Trim(),
-            RobotSerial = dto.RobotSerial?.Trim(),
-            CustomerOrderNo = dto.CustomerOrderNo?.Trim(),
-            RobentexOrderNo = dto.RobentexOrderNo?.Trim(),
-            TrackingNo = dto.TrackingNo?.Trim(),
-            Status = dto.Status,
-            FaultDescription = dto.FaultDescription?.Trim(),
-            CreatedAt = DateTime.UtcNow.AddHours(3),
-            UpdatedAt = DateTime.UtcNow.AddHours(3)    // sende alanın adı UpdatedAt
+            CompanyName      = dto.CompanyName!.Trim(),
+            Title            = string.IsNullOrWhiteSpace(dto.Title) ? null : dto.Title!.Trim(),
+            FirstName        = dto.FirstName!.Trim(),
+            LastName         = dto.LastName!.Trim(),
+            Phone            = dto.Phone!.Trim(),
+            Email            = dto.Email!.Trim(),
+            RobotModel       = dto.RobotModel!.Trim(),
+            RobotSerial      = dto.RobotSerial!.Trim(),
+            CustomerOrderNo  = string.IsNullOrWhiteSpace(dto.CustomerOrderNo) ? null : dto.CustomerOrderNo!.Trim(), // OPSİYONEL
+            RobentexOrderNo  = string.IsNullOrWhiteSpace(dto.RobentexOrderNo) ? null : dto.RobentexOrderNo!.Trim(),
+            TrackingNo       = string.IsNullOrWhiteSpace(dto.TrackingNo) ? null : dto.TrackingNo!.Trim(),
+            Status           = dto.Status,
+            FaultDescription = dto.FaultDescription!.Trim(),
+            CreatedAt        = DateTime.UtcNow.AddHours(3),
+            UpdatedAt        = DateTime.UtcNow.AddHours(3)
         };
 
         if (!string.IsNullOrWhiteSpace(dto.NewNote))
         {
             entity.Notes = new List<ServiceRequestNote>{
-            new ServiceRequestNote{
-                Text = dto.NewNote!.Trim(),
-                CreatedAt = DateTime.UtcNow.AddHours(3),
-                CreatedBy = User.Identity?.Name ?? "admin"
-            }
-        };
+                new ServiceRequestNote{
+                    Text      = dto.NewNote!.Trim(),
+                    CreatedAt = DateTime.UtcNow.AddHours(3),
+                    CreatedBy = User.Identity?.Name ?? "admin"
+                }
+            };
         }
 
         db.ServiceRequests.Add(entity);
         await db.SaveChangesAsync();
-        return Ok(new { id = entity.Id });   // JS tarafı sayfayı yeniliyor
+
+        return Ok(new { ok = true, id = entity.Id });
     }
     // Kaydet (POST) – admin alanları güncelle + not ekle (varsa)
     [HttpPost]
