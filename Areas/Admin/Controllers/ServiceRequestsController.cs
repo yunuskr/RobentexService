@@ -61,6 +61,68 @@ public class ServiceRequestsController(ApplicationDbContext db, ILogger<ServiceR
         public string? NewNote { get; set; }
     }
 
+
+    // === Yardımcılar (aynısını kullanabiliriz) ===
+    private static DateTime GetTurkeyLocalNow()
+    {
+        try { return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time")); }
+        catch { return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul")); }
+    }
+    private static string MakeMonthlyPrefix(DateTime trNow)
+    {
+        var yy = trNow.ToString("yy"); // 25
+        var mm = trNow.ToString("MM"); // 10
+        return $"RX{yy}{mm}";          // RX2510
+    }
+    private static async Task<string> GenerateMonthlyRobentexNoAsync(ApplicationDbContext db, int maxAttempts = 5)
+    {
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            var trNow  = GetTurkeyLocalNow();
+            var prefix = MakeMonthlyPrefix(trNow); // RXYYMM
+
+            var last = await db.ServiceRequests.AsNoTracking()
+                .Where(x => x.RobentexOrderNo != null && x.RobentexOrderNo.StartsWith(prefix))
+                .OrderByDescending(x => x.RobentexOrderNo)
+                .Select(x => x.RobentexOrderNo!)
+                .FirstOrDefaultAsync();
+
+            int next = 1;
+            if (!string.IsNullOrEmpty(last) && last.Length >= prefix.Length + 2)
+            {
+                var tail = last.Substring(prefix.Length, 2);
+                if (int.TryParse(tail, out var n)) next = n + 1;
+            }
+            if (next > 99) throw new InvalidOperationException("Bu ay için 99 üzeri numara.");
+
+            var candidate = prefix + next.ToString("00");
+
+            var exists = await db.ServiceRequests.AsNoTracking()
+                .AnyAsync(x => x.RobentexOrderNo == candidate);
+
+            if (!exists) return candidate;
+
+            await Task.Delay(20);
+        }
+        throw new InvalidOperationException("Benzersiz RX numarası üretilemedi.");
+    }
+
+    // === JS’in çağıracağı GET endpoint ===
+    [HttpGet]
+    public async Task<IActionResult> NextRobentexNo()
+    {
+        try
+        {
+            var code = await GenerateMonthlyRobentexNoAsync(db);
+            return Json(new { ok = true, value = code });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "NextRobentexNo hata");
+            return Json(new { ok = false, message = "Numara üretilemedi." });
+        }
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateDto dto)
@@ -94,7 +156,7 @@ public class ServiceRequestsController(ApplicationDbContext db, ILogger<ServiceR
                 missing
             });
         }
-
+        
         var entity = new ServiceRequest
         {
             CompanyName      = dto.CompanyName!.Trim(),

@@ -1,5 +1,5 @@
 (function () {
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     const btn = e.target.closest('.open-create');
     if (!btn) return;
 
@@ -18,7 +18,28 @@
     window.addEventListener('keydown', ev => { if (ev.key === 'Escape') close(); }, { once:true });
     document.body.style.overflow='hidden';
 
-    // İlk inputa odak
+    // === RX numarasını modal AÇILIRKEN doldur ===
+    try {
+      const rxInput = form.querySelector('input[name="RobentexOrderNo"]');
+      if (rxInput) {
+        const res = await fetch('/Admin/ServiceRequests/NextRobentexNo', {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          credentials: 'same-origin'
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.ok && data.value) {
+            rxInput.value = data.value;     // kutuyu doldur
+            // İstersen kullanıcı değiştiremesin:
+            // rxInput.readOnly = true;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('RX numarası otomatik doldurulamadı:', err);
+    }
+
+    // İlk inputa odak (firma)
     form.querySelector('input[name="CompanyName"]')?.focus();
 
     // Kaydet
