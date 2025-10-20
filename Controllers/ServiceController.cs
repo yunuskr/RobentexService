@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using RobentexService.Data;
 using RobentexService.Models;
 using Microsoft.EntityFrameworkCore;
-
+using RobentexService.Services.Email;
 namespace RobentexService.Controllers;
 
-public class ServiceController(ApplicationDbContext db, ILogger<ServiceController> logger)
+public class ServiceController(ApplicationDbContext db, ILogger<ServiceController> logger,IEmailSender email)
     : Controller
 {
     [HttpGet]
@@ -88,34 +88,54 @@ public class ServiceController(ApplicationDbContext db, ILogger<ServiceControlle
     [HttpPost]
     public async Task<IActionResult> Index(ServiceRequest model)
     {
-        if (!ModelState.IsValid)
-            return View(model);
+        if (!ModelState.IsValid) return View(model);
 
         try
         {
-            // RobentexOrderNo boşsa yeni kurala göre oluştur
             if (string.IsNullOrWhiteSpace(model.RobentexOrderNo))
                 model.RobentexOrderNo = await GenerateMonthlyRobentexNoAsync(db);
 
-            // Kayıt zamanları (TR saati istiyorsun diye UTC+3 set etmeye devam)
             model.CreatedAt = DateTime.UtcNow.AddHours(3);
             model.UpdatedAt = model.CreatedAt;
 
             db.ServiceRequests.Add(model);
 
-            // Çok nadir yarışta unique constraint çakışmasını tolere et
             for (int attempt = 0; attempt < 2; attempt++)
             {
-                try
-                {
-                    await db.SaveChangesAsync();
-                    break; // kaydedildi
-                }
+                try { await db.SaveChangesAsync(); break; }
                 catch (DbUpdateException ex)
                 {
                     logger.LogWarning(ex, "RobentexOrderNo çakıştı, tekrar üretiliyor...");
-                    // Yeniden üret ve tekrar dene
                     model.RobentexOrderNo = await GenerateMonthlyRobentexNoAsync(db);
+                }
+            }
+
+            // E-posta — hata oluşursa kullanıcı akışını bozma
+            if (!string.IsNullOrWhiteSpace(model.Email))
+            {
+                var subject = $"Talebiniz alındı • {model.RobentexOrderNo}";
+                var html = $@"
+<div style=""font-family:Segoe UI,Arial,sans-serif;font-size:14px;"">
+  <p>Merhaba {(model.FirstName + " " + model.LastName).Trim()},</p>
+  <p>Servis talebiniz başarıyla alındı.</p>
+  <ul>
+    <li><b>Talep No:</b> {model.RobentexOrderNo}</li>
+    <li><b>Firma:</b> {model.CompanyName}</li>
+    <li><b>Model/Seri:</b> {model.RobotModel} / {model.RobotSerial}</li>
+    <li><b>Oluşturma:</b> {model.CreatedAt:dd.MM.yyyy HH:mm}</li>
+  </ul>
+  <p><b>Arıza Tanımı:</b><br/>{System.Net.WebUtility.HtmlEncode(model.FaultDescription)}</p>
+  <p>İlginiz için teşekkür ederiz.<br/>Robentex Destek</p>
+</div>";
+                try
+                {
+                    // İstersen fire-and-forget de yapabilirsin: _ = email.SendAsync(...)
+                    await email.SendAsync(model.Email, subject, html);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Onay e-postası gönderilemedi: {Email}", model.Email);
+                    // bilinçli olarak yutmamız iyi: kullanıcı akışını bozma
                 }
             }
 
@@ -132,3 +152,4 @@ public class ServiceController(ApplicationDbContext db, ILogger<ServiceControlle
 
     public IActionResult Success() => View();
 }
+

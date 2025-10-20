@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using RobentexService.Data;
-
+using RobentexService.Services.Email;
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
@@ -29,6 +30,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Service/Error");
     app.UseHsts();
 }
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
