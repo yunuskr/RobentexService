@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-
+using System.ComponentModel.DataAnnotations.Schema;
 namespace RobentexService.Models;
 
 public class ServiceRequest
@@ -44,7 +44,8 @@ public class ServiceRequest
     [Display(Name = "Kayıt Zamanı")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-
+    [NotMapped] 
+    public string ?Website { get; set; }
 
     // ----- Admin Tarafından Girilecek Olan Veriler -----
     

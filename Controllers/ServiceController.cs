@@ -3,11 +3,42 @@ using RobentexService.Data;
 using RobentexService.Models;
 using Microsoft.EntityFrameworkCore;
 using RobentexService.Services.Email;
+
 namespace RobentexService.Controllers;
 
-public class ServiceController(ApplicationDbContext db, ILogger<ServiceController> logger,IEmailSender email)
+public class ServiceController(ApplicationDbContext db, ILogger<ServiceController> logger, IEmailSender email)
     : Controller
 {
+    // 🔒 Basit IP rate limit (in-memory, process ayakta kaldığı sürece)
+    private static readonly Dictionary<string, List<DateTime>> _ipRequests = new();
+    private static readonly object _rateLock = new();
+
+    private bool IsIpAllowed(int limitPerMinute = 5)
+    {
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        var now = DateTime.UtcNow;
+
+        lock (_rateLock)
+        {
+            if (!_ipRequests.TryGetValue(ip, out var list))
+            {
+                list = new List<DateTime>();
+                _ipRequests[ip] = list;
+            }
+
+            // 1 dakikadan eski kayıtları temizle
+            list.RemoveAll(t => (now - t) > TimeSpan.FromMinutes(1));
+
+            if (list.Count >= limitPerMinute)
+            {
+                return false;
+            }
+
+            list.Add(now);
+            return true;
+        }
+    }
+
     [HttpGet]
     public IActionResult Index()
     {
@@ -88,21 +119,51 @@ public class ServiceController(ApplicationDbContext db, ILogger<ServiceControlle
     [HttpPost]
     public async Task<IActionResult> Index(ServiceRequest model)
     {
-        if (!ModelState.IsValid) return View(model);
+        // 1) IP bazlı rate limit kontrolü
+        if (!IsIpAllowed())
+        {
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+            logger.LogWarning("IP rate limit aşıldı. IP: {Ip}", ip);
+
+            ModelState.AddModelError("", "Çok sık form gönderimi tespit edildi. Lütfen birkaç dakika sonra tekrar deneyin.");
+            return View(model);
+        }
+
+        // 2) HONEYPOT (Website alanı) kontrolü
+        // Normal kullanıcı Website alanını hiç görmediği için boş gelir.
+        if (!string.IsNullOrWhiteSpace(model.Website))
+        {
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+            logger.LogInformation("Honeypot dolu geldi, muhtemel bot. IP: {Ip}, Website: {Website}", ip, model.Website);
+
+            // Botu belli etmeyelim, sanki kayıt alınmış gibi davranalım
+            TempData["ok"] = "Talebiniz alındı. Teşekkürler.";
+            return RedirectToAction(nameof(Success));
+        }
+
+        // 3) Normal model validasyonu
+        if (!ModelState.IsValid)
+            return View(model);
 
         try
         {
             if (string.IsNullOrWhiteSpace(model.RobentexOrderNo))
                 model.RobentexOrderNo = await GenerateMonthlyRobentexNoAsync(db);
 
-            model.CreatedAt = DateTime.UtcNow.AddHours(3);
-            model.UpdatedAt = model.CreatedAt;
+            // TR saati ile oluşturma zamanı
+            var nowTr = GetTurkeyLocalNow();
+            model.CreatedAt = nowTr;
+            model.UpdatedAt = nowTr;
 
             db.ServiceRequests.Add(model);
 
             for (int attempt = 0; attempt < 2; attempt++)
             {
-                try { await db.SaveChangesAsync(); break; }
+                try
+                {
+                    await db.SaveChangesAsync();
+                    break;
+                }
                 catch (DbUpdateException ex)
                 {
                     logger.LogWarning(ex, "RobentexOrderNo çakıştı, tekrar üretiliyor...");
@@ -110,7 +171,7 @@ public class ServiceController(ApplicationDbContext db, ILogger<ServiceControlle
                 }
             }
 
-            // E-posta — hata oluşursa kullanıcı akışını bozma
+            // 4) E-posta — hata oluşursa kullanıcı akışını bozma
             if (!string.IsNullOrWhiteSpace(model.Email))
             {
                 var subject = $"Talebiniz alındı • {model.RobentexOrderNo}";
@@ -152,4 +213,3 @@ public class ServiceController(ApplicationDbContext db, ILogger<ServiceControlle
 
     public IActionResult Success() => View();
 }
-

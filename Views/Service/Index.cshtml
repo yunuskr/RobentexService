@@ -17,8 +17,18 @@
 
       @Html.ValidationSummary(excludePropertyErrors: true, message: "", htmlAttributes: new { @class = "alert alert-warning py-2" })
 
-      <form asp-action="Index" method="post" class="row g-3">
+      <form asp-action="Index" method="post" class="row g-3" id="serviceForm">
         @Html.AntiForgeryToken()
+
+        <!-- HONEYPOT TUZAK ALANI (BOTLAR İÇİN) -->
+        <div class="hp-field">
+            <label asp-for="Website" class="form-label">Web Siteniz</label>
+            <input asp-for="Website"
+                   class="form-control control-dark"
+                   autocomplete="off" />
+            <span asp-validation-for="Website" class="invalid-hint"></span>
+        </div>
+        <!-- /HONEYPOT -->
 
         <div class="col-12 col-md-6">
           <label asp-for="FirstName" class="form-label"></label>
@@ -78,7 +88,16 @@
         </div>
 
         <div class="col-12 mt-4">
-          <button class="btn btn-warning w-100 btn-lg fw-semibold">Gönder</button>
+          <button type="submit"
+                  id="submitBtn"
+                  class="btn btn-warning w-100 btn-lg fw-semibold">
+              Gönder
+          </button>
+
+          <div id="formStatus"
+               class="text-center text-muted small mt-2 d-none">
+              Talebiniz gönderiliyor, lütfen bekleyin...
+          </div>
         </div>
       </form>
     </div>
@@ -98,17 +117,17 @@
     padding-block: clamp(16px, 4vh, 40px);
   }
   .control-dark::placeholder{
-  color:#bfc3c7;   /* açık gri */
-  opacity:1;       /* bazı tarayıcılar düşük opacity veriyor */
-}
+    color:#bfc3c7;
+    opacity:1;
+  }
   .brand-logo{
-    height:42px;               /* mobilde rahat */
+    height:42px;
     max-width: 100%;
     object-fit: contain;
-    }
-    @@media (min-width: 768px){
-    .brand-logo{ height:48px; } /* tablet/desktop */
-    }
+  }
+  @@media (min-width: 768px){
+    .brand-logo{ height:48px; }
+  }
   .form-card{
     background:var(--card);
     color:var(--text);
@@ -127,22 +146,68 @@
   }
   .invalid-hint{ color:#ffc107; font-size:.85rem; }
 
-  /* Daha konforlu dokunma hedefleri */
+  /* HONEYPOT alanı tamamen gizle (ekranda görünmesin ama DOM’da olsun) */
+  .hp-field{
+    position:absolute;
+    left:-9999px;
+    opacity:0;
+    height:0;
+    overflow:hidden;
+  }
+
   input, textarea, button{ font-size:1rem; }
   @@media (min-width: 768px){
     input, textarea, button{ font-size:1.05rem; }
   }
 
-  /* iOS güvenli alan */
-  .wrapper-dark{ padding-left: max(16px, env(safe-area-inset-left)); padding-right:max(16px, env(safe-area-inset-right)); }
-
-  /* Sistem koyu ayarına saygı (isteğe bağlı) */
+  .wrapper-dark{
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right:max(16px, env(safe-area-inset-right));
+  }
 
 </style>
 }
 @section Scripts{
   <partial name="_ValidationScriptsPartial" />
 
+  <script>
+    // jQuery varsa onunla, yoksa vanilla JS ile çalıştıracağız
+    (function () {
+        function initSubmitGuard() {
+            var form = document.getElementById("serviceForm");
+            var btn = document.getElementById("submitBtn");
+            var status = document.getElementById("formStatus");
 
-  
+            if (!form || !btn || !status) return;
+
+            form.addEventListener("submit", function (e) {
+
+                // HTML5 tarafında form geçerli değilse hiç dokunma
+                if (!form.checkValidity()) {
+                    return;
+                }
+
+                // Zaten disable ise (çift tıklama) tekrar işlem yapma
+                if (btn.disabled) {
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' +
+                    'Gönderiliyor, lütfen bekleyin...';
+
+                status.classList.remove("d-none");
+            });
+        }
+
+        if (window.jQuery) {
+            // jQuery yüklüyse DOM hazır olunca çalıştır
+            $(initSubmitGuard);
+        } else {
+            // jQuery yoksa standard DOMContentLoaded
+            document.addEventListener("DOMContentLoaded", initSubmitGuard);
+        }
+    })();
+  </script>
 }
