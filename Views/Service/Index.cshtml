@@ -5,209 +5,239 @@
 }
 
 <div class="wrapper-dark">
-  <div class="container px-3 px-sm-4">
-    <div class="form-card mx-auto">
-        <div class="text-center mb-3">
-            <img src="~/Images/Robentex.png"
-                alt="Robentex"
-                class="brand-logo"
-                asp-append-version="true" />
-            <div class="text-muted small mt-1">Servis Talep Formu</div>
+    <div class="container px-3 px-sm-4">
+        <div class="form-card mx-auto">
+            <div class="text-center mb-3">
+                <img src="~/Images/Robentex.png"
+                     alt="Robentex"
+                     class="brand-logo"
+                     asp-append-version="true" />
+                <div class="text-muted small mt-1">Servis Talep Formu</div>
+            </div>
+
+            @Html.ValidationSummary(excludePropertyErrors: true, message: "", htmlAttributes: new { @class = "alert alert-warning py-2" })
+
+            <form asp-action="Index" method="post" class="row g-3" id="serviceForm">
+                @Html.AntiForgeryToken()
+
+                <!-- HONEYPOT TUZAK ALANI -->
+                <div class="hp-field">
+                    <label asp-for="Website" class="form-label">Web Siteniz</label>
+                    <input asp-for="Website"
+                           class="form-control control-dark"
+                           autocomplete="off"
+                           tabindex="-1" />
+                    <span asp-validation-for="Website" class="invalid-hint"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="FirstName" class="form-label"></label>
+                    <input asp-for="FirstName" class="form-control control-dark"
+                           autocomplete="given-name" inputmode="text" required />
+                    <span asp-validation-for="FirstName" class="invalid-hint"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="LastName" class="form-label"></label>
+                    <input asp-for="LastName" class="form-control control-dark"
+                           autocomplete="family-name" inputmode="text" required />
+                    <span asp-validation-for="LastName" class="invalid-hint"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="RobotSerial" class="form-label"></label>
+                    <input asp-for="RobotSerial" class="form-control control-dark"
+                           autocomplete="off" inputmode="text" required />
+                    <span asp-validation-for="RobotSerial" class="invalid-hint"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="RobotModel" class="form-label"></label>
+                    <input asp-for="RobotModel" class="form-control control-dark"
+                           autocomplete="off" inputmode="text" required />
+                    <span asp-validation-for="RobotModel" class="invalid-hint"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="CompanyName" class="form-label"></label>
+                    <input asp-for="CompanyName" class="form-control control-dark"
+                           autocomplete="organization" required />
+                    <span asp-validation-for="CompanyName" class="invalid-hint"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="FaultDescription" class="form-label"></label>
+                    <textarea asp-for="FaultDescription" rows="6" class="form-control control-dark"
+                              placeholder="Lütfen sorunu mümkün olduğunca detaylı açıklayın"
+                              minlength="10" required></textarea>
+                    <span asp-validation-for="FaultDescription" class="invalid-hint"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control control-dark"
+                           autocomplete="email" inputmode="email" required />
+                    <span asp-validation-for="Email" class="invalid-hint"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="Phone" class="form-label"></label>
+                    <input asp-for="Phone" class="form-control control-dark"
+                           autocomplete="tel" inputmode="tel" required />
+                    <span asp-validation-for="Phone" class="invalid-hint"></span>
+                </div>
+
+                <div class="col-12">
+                    <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey"></div>
+                </div>
+
+                <div class="col-12 mt-4">
+                    <button type="submit"
+                            id="submitBtn"
+                            class="btn btn-warning w-100 btn-lg fw-semibold">
+                        Gönder
+                    </button>
+
+                    <div id="formStatus"
+                         class="text-center text-muted small mt-2 d-none">
+                        Talebiniz gönderiliyor, lütfen bekleyin...
+                    </div>
+                </div>
+            </form>
         </div>
-
-      @Html.ValidationSummary(excludePropertyErrors: true, message: "", htmlAttributes: new { @class = "alert alert-warning py-2" })
-
-      <form asp-action="Index" method="post" class="row g-3" id="serviceForm">
-        @Html.AntiForgeryToken()
-
-        <!-- HONEYPOT TUZAK ALANI (BOTLAR İÇİN) -->
-        <div class="hp-field">
-            <label asp-for="Website" class="form-label">Web Siteniz</label>
-            <input asp-for="Website"
-                   class="form-control control-dark"
-                   autocomplete="off" />
-            <span asp-validation-for="Website" class="invalid-hint"></span>
-        </div>
-        <!-- /HONEYPOT -->
-
-        <div class="col-12 col-md-6">
-          <label asp-for="FirstName" class="form-label"></label>
-          <input asp-for="FirstName" class="form-control control-dark"
-                autocomplete="given-name" inputmode="text" required />
-          <span asp-validation-for="FirstName" class="invalid-hint"></span>
-        </div>
-
-        <div class="col-12 col-md-6">
-          <label asp-for="LastName" class="form-label"></label>
-          <input asp-for="LastName" class="form-control control-dark"
-                autocomplete="family-name" inputmode="text" required />
-          <span asp-validation-for="LastName" class="invalid-hint"></span>
-        </div>
-
-        <div class="col-12 col-md-6">
-          <label asp-for="RobotSerial" class="form-label"></label>
-          <input asp-for="RobotSerial" class="form-control control-dark"
-                autocomplete="off" inputmode="text" required />
-          <span asp-validation-for="RobotSerial" class="invalid-hint"></span>
-        </div>
-
-        <div class="col-12 col-md-6">
-          <label asp-for="RobotModel" class="form-label"></label>
-          <input asp-for="RobotModel" class="form-control control-dark"
-                autocomplete="off" inputmode="text" required />
-          <span asp-validation-for="RobotModel" class="invalid-hint"></span>
-        </div>
-
-        <div class="col-12">
-          <label asp-for="CompanyName" class="form-label"></label>
-          <input asp-for="CompanyName" class="form-control control-dark"
-                autocomplete="organization" required />
-          <span asp-validation-for="CompanyName" class="invalid-hint"></span>
-        </div>
-
-        <div class="col-12">
-          <label asp-for="FaultDescription" class="form-label"></label>
-          <textarea asp-for="FaultDescription" rows="6" class="form-control control-dark"
-                    placeholder="Lütfen sorunu mümkün olduğunca detaylı açıklayın"
-                    minlength="10" required></textarea>
-          <span asp-validation-for="FaultDescription" class="invalid-hint"></span>
-        </div>
-
-        <div class="col-12 col-md-6">
-          <label asp-for="Email" class="form-label"></label>
-          <input asp-for="Email" class="form-control control-dark"
-                autocomplete="email" inputmode="email" required />
-          <span asp-validation-for="Email" class="invalid-hint"></span>
-        </div>
-
-        <div class="col-12 col-md-6">
-          <label asp-for="Phone" class="form-label"></label>
-          <input asp-for="Phone" class="form-control control-dark"
-                autocomplete="tel" inputmode="tel" required />
-          <span asp-validation-for="Phone" class="invalid-hint"></span>
-        </div>
-
-        <div class="col-12 mt-4">
-          <button type="submit"
-                  id="submitBtn"
-                  class="btn btn-warning w-100 btn-lg fw-semibold">
-              Gönder
-          </button>
-
-          <div id="formStatus"
-               class="text-center text-muted small mt-2 d-none">
-              Talebiniz gönderiliyor, lütfen bekleyin...
-          </div>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
 
 @section Styles{
 <style>
+    :root{
+        --bg:#121212; --card:#232323; --text:#eaeaea; --muted:#9aa0a6; --accent:#f0a400;
+        --radius:18px;
+    }
 
-  /* mobile-first koyu tema + yumuşak kart */
-  :root{
-    --bg:#121212; --card:#232323; --text:#eaeaea; --muted:#9aa0a6; --accent:#f0a400;
-    --radius:18px;
-  }
-  .wrapper-dark{
-    min-height:100dvh; background:var(--bg);
-    padding-block: clamp(16px, 4vh, 40px);
-  }
-  .control-dark::placeholder{
-    color:#bfc3c7;
-    opacity:1;
-  }
-  .brand-logo{
-    height:42px;
-    max-width: 100%;
-    object-fit: contain;
-  }
-  @@media (min-width: 768px){
-    .brand-logo{ height:48px; }
-  }
-  .form-card{
-    background:var(--card);
-    color:var(--text);
-    width:min(840px, 100%);
-    padding:clamp(16px, 3.5vw, 32px);
-    border-radius: var(--radius);
-    box-shadow: 0 12px 40px rgba(0,0,0,.35);
-  }
-  .form-label{ color:var(--muted); font-weight:500; }
-  .control-dark{
-    background:#303030; border:1px solid #3a3a3a; color:var(--text);
-    border-radius: 14px; padding:.9rem 1rem;
-  }
-  .control-dark:focus{
-    border-color: var(--accent); outline:0; box-shadow:0 0 0 .15rem rgba(240,164,0,.25);
-  }
-  .invalid-hint{ color:#ffc107; font-size:.85rem; }
+    .wrapper-dark{
+        min-height:100dvh;
+        background:var(--bg);
+        padding-block: clamp(16px, 4vh, 40px);
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right:max(16px, env(safe-area-inset-right));
+    }
 
-  /* HONEYPOT alanı tamamen gizle (ekranda görünmesin ama DOM’da olsun) */
-  .hp-field{
-    position:absolute;
-    left:-9999px;
-    opacity:0;
-    height:0;
-    overflow:hidden;
-  }
+    .control-dark::placeholder{
+        color:#bfc3c7;
+        opacity:1;
+    }
 
-  input, textarea, button{ font-size:1rem; }
-  @@media (min-width: 768px){
-    input, textarea, button{ font-size:1.05rem; }
-  }
+    .brand-logo{
+        height:42px;
+        max-width: 100%;
+        object-fit: contain;
+    }
 
-  .wrapper-dark{
-    padding-left: max(16px, env(safe-area-inset-left));
-    padding-right:max(16px, env(safe-area-inset-right));
-  }
+    @@media (min-width: 768px){
+        .brand-logo{ height:48px; }
+    }
 
+    .form-card{
+        background:var(--card);
+        color:var(--text);
+        width:min(840px, 100%);
+        padding:clamp(16px, 3.5vw, 32px);
+        border-radius: var(--radius);
+        box-shadow: 0 12px 40px rgba(0,0,0,.35);
+    }
+
+    .form-label{
+        color:var(--muted);
+        font-weight:500;
+    }
+
+    .control-dark{
+        background:#303030;
+        border:1px solid #3a3a3a;
+        color:var(--text);
+        border-radius: 14px;
+        padding:.9rem 1rem;
+    }
+
+    .control-dark:focus{
+        border-color: var(--accent);
+        outline:0;
+        box-shadow:0 0 0 .15rem rgba(240,164,0,.25);
+    }
+
+    .invalid-hint{
+        color:#ffc107;
+        font-size:.85rem;
+    }
+
+    .hp-field{
+        position:absolute;
+        left:-9999px;
+        opacity:0;
+        height:0;
+        overflow:hidden;
+    }
+
+    input, textarea, button{
+        font-size:1rem;
+    }
+
+    @@media (min-width: 768px){
+        input, textarea, button{
+            font-size:1.05rem;
+        }
+    }
+
+    .g-recaptcha{
+        display:inline-block;
+        transform-origin:left top;
+    }
+
+    @@media (max-width: 400px){
+        .g-recaptcha{
+            transform: scale(0.92);
+        }
+    }
 </style>
 }
+
 @section Scripts{
-  <partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-  <script>
-    // jQuery varsa onunla, yoksa vanilla JS ile çalıştıracağız
-    (function () {
-        function initSubmitGuard() {
-            var form = document.getElementById("serviceForm");
-            var btn = document.getElementById("submitBtn");
-            var status = document.getElementById("formStatus");
+    <script>
+        (function () {
+            function initSubmitGuard() {
+                var form = document.getElementById("serviceForm");
+                var btn = document.getElementById("submitBtn");
+                var status = document.getElementById("formStatus");
 
-            if (!form || !btn || !status) return;
+                if (!form || !btn || !status) return;
 
-            form.addEventListener("submit", function (e) {
+                form.addEventListener("submit", function () {
+                    if (!form.checkValidity()) {
+                        return;
+                    }
 
-                // HTML5 tarafında form geçerli değilse hiç dokunma
-                if (!form.checkValidity()) {
-                    return;
-                }
+                    if (btn.disabled) {
+                        return;
+                    }
 
-                // Zaten disable ise (çift tıklama) tekrar işlem yapma
-                if (btn.disabled) {
-                    return;
-                }
+                    btn.disabled = true;
+                    btn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' +
+                        'Gönderiliyor, lütfen bekleyin...';
 
-                btn.disabled = true;
-                btn.innerHTML =
-                    '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' +
-                    'Gönderiliyor, lütfen bekleyin...';
+                    status.classList.remove("d-none");
+                });
+            }
 
-                status.classList.remove("d-none");
-            });
-        }
-
-        if (window.jQuery) {
-            // jQuery yüklüyse DOM hazır olunca çalıştır
-            $(initSubmitGuard);
-        } else {
-            // jQuery yoksa standard DOMContentLoaded
-            document.addEventListener("DOMContentLoaded", initSubmitGuard);
-        }
-    })();
-  </script>
+            if (window.jQuery) {
+                $(initSubmitGuard);
+            } else {
+                document.addEventListener("DOMContentLoaded", initSubmitGuard);
+            }
+        })();
+    </script>
 }
